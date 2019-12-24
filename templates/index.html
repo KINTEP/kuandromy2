@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block head%}
+  <title>Home Page</title>
+{% endblock %}
+{% block div %}
+      <div class = "row">
+        <div class ="jumbotron my-div col">
+            <div>Do you wish to sell your digital works, files or skills?</div>
+            <div>You are in the right place!</div>
+            <div>Create a flexible medium for the sale of our digital files.</div>
+            <div>money from the little files on your PC</div>
+        </div>
+        <div class="jumbotron col">
+            <div class="card text-center my-col3">
+                <div class="card-header">
+                  Trends
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">Global Trends</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="#" class="btn btn-primary">Try It</a>
+                </div>
+              </div>
+        </div>
+      </div>
+
+
+        <div class = "row">
+              <div class="col card text-center bg-secondary my-col1">
+                <div class="card-header">
+                  Sell Your Product
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">How to sell your product</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="{{url_for('register')}}" class="btn btn-primary">Register</a>
+                  <a href="{{url_for('login')}}" class="btn btn-primary">Log In</a>
+                </div>
+              </div>
+
+              <div class="col card text-center bg-primary my-col2">
+                <div class="card-header">
+                  Buy A Product
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">How to buy</h5>
+                  <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                  <a href="" class="btn btn-primary">Buy Now</a>
+                </div>
+              </div>
+
+
+        </div>
+    {%endblock%}
