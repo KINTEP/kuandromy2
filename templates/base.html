@@ -55,15 +55,21 @@
     <li class="nav-item">
       <a class="nav-link" href="#">About Us</a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{url_for('register')}}">Sign Up</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{url_for('login')}}">Log In</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{url_for('dashboard')}}">Dash Board</a>
-    </li>
+    {% if current_user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('account')}}">Account</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('register')}}">Sign Up</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('login')}}">Log In</a>
+        </li>
+    {% endif %}
     <li class="nav-item">
       <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Subscribe</a>
     </li>
@@ -76,7 +82,17 @@
 </nav>
 
   <body class = "container">
-    {% block div%}{% endblock %}
+    {% with messages = get_flashed_messages(with_categories = true)%}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{category}}">
+            {{message}}
+          </div>
+
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block div %}{% endblock %}
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
