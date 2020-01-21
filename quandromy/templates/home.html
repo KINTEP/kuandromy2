@@ -1,0 +1,101 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>Home</title>
+{% endblock %}
+{% block div %}
+<div class="jumbotron">
+</div>
+<div class="row">
+  <div class="col-2">
+    <legend>Top Requests</legend>
+    <hr>
+    This is what customers are requesting for:
+  </div>
+
+  <div class="col">
+    <div class="row">
+      <div class="jumbotron col-8">
+        <h1>Make money from the things you love doing</h1>
+      </div>
+      <div class="col-4">
+        <h1>Top Trends</h1>
+        <hr>
+        <div class="">
+          <li>
+            <ul>
+              Pictures
+            </ul>
+            <ul>
+              Art Works
+            </ul>
+            <ul>
+              Musics
+            </ul>
+            <ul>
+              Graphic Designs
+            </ul>
+          </li>
+        </div>
+      </div>
+
+    </div>
+      <hr>
+      <div class="row">
+        <div class="col content-section">
+          <form class="jumbotron" action="" method="POST" enctype="multipart/form-data">
+            {{form.hidden_tag()}}
+            <fieldset class="form-group">
+              <legend class="border-bottom mb-4">SEARCH FOR A FILE</legend>
+                  <div class="form-group">
+                      {{form.search.label(class = 'form-control-label')}}
+
+                      {% if form.search.errors %}
+                          {{form.search(class = 'form-control form-control-sm is-invalid')}}
+                        <div class="invalid-feedback">
+                          {%for error in form.search.errors%}
+                            <span>{{error}}</span>
+                          {%endfor%}
+                        </div>
+                      {% else %}
+                        {{form.search(class = 'form-control form-control-sm')}}
+                      {% endif %}
+                  </div>
+                </fieldset>
+                <div class="form-group">
+                  {{form.submit(class = "btn btn-outline-info")}}
+                </div>
+              </form>
+      </div>
+
+      <div class="col content-section">
+        <form class="jumbotron" action="" method="POST" enctype="multipart/form-data">
+          {{form.hidden_tag()}}
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4">UPLOAD A FILE</legend>
+                <div class="form-group">
+                    {{form1.uploadfile.label(class = 'form-control-label')}}
+
+                    {% if form1.uploadfile.errors %}
+                        {{form1.uploadfile(class = 'form-control form-control-sm is-invalid')}}
+                      <div class="invalid-feedback">
+                        {%for error in form1.uploadfile.errors%}
+                          <span>{{error}}</span>
+                        {%endfor%}
+                      </div>
+                    {% else %}
+                      {{form1.uploadfile(class = 'form-control form-control-sm')}}
+                    {% endif %}
+                </div>
+              </fieldset>
+              <div class="form-group">
+                {{form1.submit(class = "btn btn-outline-info")}}
+              </div>
+            </form>
+    </div>
+      </div>
+  </div>
+
+
+  </div>
+
+{% endblock %}

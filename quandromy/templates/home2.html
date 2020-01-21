@@ -1,0 +1,65 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>Home</title>
+{% endblock %}
+{% block div %}
+<div class="jumbotron text-center">
+  <head>
+    <h1>You own yourself and everything you create! Make money from yourself and your handy works.</h1>
+  </head>
+</div>
+<hr>
+  <legend>Pictures For Sale</legend>
+  {% for post in posts %}
+  <div class="row">
+    <article class="content-section">
+        <img class="" src="{{url_for('static', filename = 'postpics/' + post.picture)}}" alt="product picture">
+        <div class="media-body">
+          <div class="article-metadata">
+              <small class="text-muted">{{post.date_posted}}</small>
+              <br>
+              <small class="text-muted">{{post.author.username}}</small>
+              <br>
+              <small class="text-muted">{{post.author.email}}</small>
+          </div>
+          <h2 class = "article-title">{{post.title}}</h2>
+          <p class="article-content">  {{post.describe}}</p>
+          <div class="">
+            <div class="row">
+              <div class="col">
+                <a href="#">Update</a>
+              </div>
+              <div class="col">
+                <a href="#">Delete</a>
+              </div>
+              <div class="col">
+                <a href="#">Something</a>
+              </div>
+            </div>
+        </div>
+
+    </article>
+  </div>
+
+{% endfor %}
+  <div class="jumbotron row">
+
+
+
+
+  </div>
+  <hr>
+  <div class="jumbotron row">
+    <legend>Document Files For Sale</legend>
+  </div>
+  <hr>
+  <div class="jumbotron row">
+    <legend>Video Files For Sale</legend>
+
+  </div>
+  <hr>
+  <div class="jumbotron row">
+    <legend>Audio Files For Sale</legend>
+    <hr>
+  </div>
+{% endblock %}

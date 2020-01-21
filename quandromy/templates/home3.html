@@ -1,0 +1,89 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>Home</title>
+{% endblock %}
+{% block div %}
+  <div class="row">
+      <div class="col">
+        <legend class="text-info text-center bg-dark">Stories</legend>
+        <h4 class="text-info text-center bg-dark">Suggestions for you</h4>
+        <h4 class="text-info text-center bg-dark">Trending</h4>
+      </div>
+
+      <div class="col">
+        {% for post in posts %}
+        <div class="card mb-3">
+            <div class="card-header">
+              <div class="content-section">
+                <div class="media">
+                  <img class="rounded-circle account-img my-img" src="{{url_for('static', filename = 'img/' + post.author.image_file)}}" alt="profile pic">
+                  <div class="media-body">
+                    <h6 class="account-heading text-center">{{post.author.fullname}}</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <img src="{{url_for('static', filename = 'postpics/' + post.picture)}}" class="card-img-top" alt="..." width="50" height="200">
+
+            <div class="card-body">
+                <p class="card-text"><small class="text-muted">{{post.date_posted.strftime('%Y-%m-%d')}}</small></p>
+                <div class="card-footer text-muted">{{post.date_posted}}</div>
+                <div class="card-footer text-muted">{{post.title}}</div>
+
+            {% if current_user.is_authenticated %}
+                <div class="row">
+                    <div class="col">
+                        <a href="{{url_for('update_post', post_id=post.id)}}" class="btn btn-primary">Edit</a>
+                    </div>
+                    <div class="col">
+                        <a href="{{url_for('delete_post', post_id=post.id)}}" class="btn btn-primary">Delete</a>
+                    </div>
+                    <div class="col">
+                        <a href="#" class="btn btn-primary">View</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="row">
+                  <div class="col">
+                      <a href="#" class="btn btn-primary">Buy</a>
+                  </div>
+                  <div class="col">
+                      <a href="#" class="btn btn-primary">Interested</a>
+                  </div>
+                  <div class="col">
+                      <a href="#" class="btn btn-primary">Like</a>
+                  </div>
+                  <div class="col">
+                      <a href="#" class="btn btn-primary">Comment</a>
+                  </div>
+                </div>
+                {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+      </div>
+
+      <div class="col">
+        <h3 class="text-white text-center bg-primary">People You Can Follow</h3>
+        <div class="">
+          {% for user in users if not first %}
+          <div class="row">
+            <div class="col">
+                <img src="{{url_for('static', filename = 'img/' + user.image_file)}}" class="card-img-top my-img mb-2" alt="...">
+            </div>
+              <div class="col text-left">
+                {{user.username}}
+              </div>
+          </div>
+          <form class="" action="" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+              <a href="{{url_for('follow', user_id=user.id)}}" class="btn btn-secondary">Follow</a>
+            </div>
+
+          </form>
+          <hr>
+          {% endfor %}
+        </div>
+      </div>
+  </div>
+{% endblock %}
