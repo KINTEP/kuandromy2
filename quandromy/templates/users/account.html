@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block head %}
+  <title>Accout</title>
+
+{% endblock %}
+
+{% block div %}
+ <div class="content-section">
+   <div class="media">
+     <img class="rounded-circle account-img my-img" src="{{image_file}}" alt="profile pic">
+     <div class="media-body">
+       <h2 class="account-heading">{{current_user.username}}</h2>
+       <p class="text-secondary">{{current_user.email}}</p>
+     </div>
+   </div>
+ </div>
+<a href="{{url_for('users.update')}}">Update Account</a>
+<br>
+<a href="{{url_for('users.myprofile')}}">My Profile</a>
+{% endblock %}
