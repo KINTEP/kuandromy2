@@ -1,7 +1,7 @@
-from flask import render_template, request, Blueprint
+from flask import render_template, request
 from quandromy.database import Post, User
+from . import main
 
-main = Blueprint("main", __name__)
 
 @main.route('/',  methods = ["GET", "POST"])
 @main.route("/index", methods = ["GET", "POST"])
@@ -13,3 +13,7 @@ def index():
 @main.route('/about')
 def about():
 	return render_template('main/about.html')
+
+@main.route('/api_page')
+def api_page():
+	return render_template('main/api_page.html')

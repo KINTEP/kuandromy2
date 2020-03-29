@@ -10,7 +10,7 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators = [DataRequired(), Length(min = 2, max = 30)])
     email = StringField("Email", validators = [DataRequired(), Email()])
     country = StringField("Country", validators = [DataRequired()])
-    picture = FileField("Update Profile Picture", validators = [FileAllowed(['jpg', 'png'])], default = 'default.png')
+    picture = FileField("Update Profile Picture", validators = [FileAllowed(['jpg', 'png'])])
     password = PasswordField("Password", validators = [DataRequired()])
     confirm_password = PasswordField("Confirm Password", validators = [DataRequired(), EqualTo("password")])
     submit = SubmitField("Join Now")

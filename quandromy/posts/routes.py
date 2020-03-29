@@ -1,12 +1,11 @@
-from flask import  render_template, url_for, redirect, flash, request, abort, Blueprint
+from flask import  render_template, url_for, redirect, flash, request, abort
 from flask_login import current_user, login_required
 from quandromy.posts.forms import PostForm
 from quandromy.database import Post
 from quandromy.users.utils import save_picture, save_picture2
 from quandromy import db
+from . import posts
 
-
-posts = Blueprint("posts", __name__)
 
 @posts.route('/post/new', methods = ["POST", "GET"])
 @login_required
@@ -15,8 +14,7 @@ def new_post():
     if form.validate_on_submit():
         if form.picture.data:
             picture_file = save_picture2(form.picture.data)
-            form.picture.data = picture_file
-        post = Post(title = form.title.data, describe = form.describe.data, picture = form.picture.data, author = current_user)
+        post = Post(title = form.title.data, describe = form.describe.data, picture = picture_file, author = current_user)
         db.session.add(post)
         db.session.commit()
         flash("Your post has been updated successfully",'success')

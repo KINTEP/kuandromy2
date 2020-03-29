@@ -1,6 +1,5 @@
-from quandromy import create_app
-
-app = create_app()
+from quandromy import app
+from quandromy import database
 
 if __name__ == "__main__":
     app.run(debug=True)

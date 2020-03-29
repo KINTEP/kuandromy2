@@ -1,11 +1,11 @@
-from flask import  render_template, url_for, redirect, flash, request, abort, Blueprint
+from flask import  render_template, url_for, redirect, flash, request, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from quandromy.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetPassword, ResetPasswordForm
 from quandromy import bcrypt, db,login_manager
-from quandromy.database import User, Followers, Post
+from quandromy.database import User, Follow, Post
 from quandromy.users.utils import save_picture, save_picture2, send_email
+from . import users
 
-users = Blueprint("users", __name__)
 
 @users.route("/register", methods = ["GET", "POST"])
 def register():
@@ -91,7 +91,7 @@ def user_posts(username):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
+"""
 @users.route('/follow/<int:user_id>', methods = ['POST', 'GET'])
 @login_required
 def follow(user_id):
@@ -102,6 +102,7 @@ def follow(user_id):
     db.session.commit()
     flash(f'You are now following {user.username}', 'success')
     return render_template('main/home3.html', first = first)
+"""
 
 @users.route("/reset_password", methods = ["GET", "POST"])
 def reset_request():

@@ -8,8 +8,18 @@
         <legend class="text-info text-center bg-dark">Stories</legend>
         <h4 class="text-info text-center bg-dark">Suggestions for you</h4>
         <h4 class="text-info text-center bg-dark">Trending</h4>
+        <hr>
+        <div class="footer1">
+            <section>
+                <ul class="list-group list-group-horizontal-sm">
+                      <a href="{{url_for('main.api_page')}}"><li class="list-group-item">API</li></a>
+                      <a href="#"><li class="list-group-item">Privacy</li></a>
+                      <a href="#"><li class="list-group-item">Terms</li></a>
+                      <a href="#"><li class="list-group-item">More</li></a>
+                </ul>
+            </section>
+        </div>
       </div>
-
       <div class="col-6">
         {% for post in posts %}
         <div class="card mb-3">
@@ -72,6 +82,11 @@
       </div>
 
       <div class="col">
+        <div class = 'row'>
+            <div class="col"><button><a href="{{url_for('users.register')}}">Sign Up</a></button></div>
+            <div class="col"><button><a href="{{url_for('users.login')}}">Log In</a></button></div>
+            <hr>
+        </div>
         <h3 class="text-white text-center bg-primary">People You Can Follow</h3>
         <div class="">
           {% for user in Users %}
