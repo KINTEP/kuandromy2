@@ -15,7 +15,7 @@ def register():
     if form.validate_on_submit():
         hash_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(fullname = form.fullname.data, username = form.username.data, email = form.email.data,
-        image_file = form.picture.data, country=form.country.data, password = hash_password)
+        image_file = form.picture.data, password = hash_password)
         db.session.add(user)
         db.session.commit()
         user = User.query.filter_by(email=form.email.data).first()
@@ -70,7 +70,7 @@ def update():
         form.username.data = current_user.username
         form.email.data = current_user.email
         form.fullname.data = current_user.fullname
-        form.country.data = current_user.country
+        #form.country.data = current_user.country
     image_file = url_for('static', filename = 'img/' + current_user.image_file)
     return render_template('users/update.html', image_file = image_file, form =form)
     #return render_template('update.html', form = form)

@@ -2,6 +2,7 @@
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from quandromy import db, login_manager
+#from quandromy import app
 from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
 
@@ -81,7 +82,7 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     username = db.Column(db.String(20), unique = True, nullable = False, index = True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(120), unique = True, nullable = False, index = True)
-    country = db.Column(db.String(200), nullable = False)
+    country = db.Column(db.String(200))
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)

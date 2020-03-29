@@ -57,21 +57,6 @@
               </div>
 
               <div class="form-group">
-                  {{form.country.label(class = 'form-control-label')}}
-
-                  {% if form.country.errors %}
-                      {{form.country(class = 'form-control form-control-sm bg-info is-invalid')}}
-                    <div class="invalid-feedback">
-                      {%for error in form.country.errors%}
-                        <span>{{error}}</span>
-                      {%endfor%}
-                    </div>
-                  {% else %}
-                    {{form.country(class = 'form-control form-control-sm bg-info')}}
-                  {% endif %}
-              </div>
-
-              <div class="form-group">
                   {{form.password.label(class = 'form-control-label')}}
                   {% if form.password.errors %}
                       {{form.password(class = 'form-control form-control-sm is-invalid')}}

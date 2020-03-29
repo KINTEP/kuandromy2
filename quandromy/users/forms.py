@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_login import current_user
 from quandromy.database import User
@@ -9,7 +9,7 @@ class RegistrationForm(FlaskForm):
     fullname = StringField("Full Name", validators = [DataRequired()])
     username = StringField("Username", validators = [DataRequired(), Length(min = 2, max = 30)])
     email = StringField("Email", validators = [DataRequired(), Email()])
-    country = StringField("Country", validators = [DataRequired()])
+    #country = StringField("Country", validators = [DataRequired()])
     picture = FileField("Update Profile Picture", validators = [FileAllowed(['jpg', 'png'])])
     password = PasswordField("Password", validators = [DataRequired()])
     confirm_password = PasswordField("Confirm Password", validators = [DataRequired(), EqualTo("password")])
@@ -27,16 +27,17 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-	email = StringField("Email", validators = [DataRequired(), Email()])
-	password = PasswordField("Password", validators = [DataRequired()])
-	submit = SubmitField("Log In")
+    email = StringField("Email", validators = [DataRequired(), Email()])
+    password = PasswordField("Password", validators = [DataRequired()])
+    remember_me = BooleanField('Keep me logged in')
+    submit = SubmitField("Log In")
 
 class UpdateAccountForm(FlaskForm):
     picture = FileField("Update Profile Picture", validators = [FileAllowed(['jpg', 'png', 'jpeg'])])
     username = StringField("Username", validators = [DataRequired(), Length(min = 2, max = 30)])
     email = StringField("Email", validators = [DataRequired(), Email()])
     fullname = StringField("Full Name", validators = [DataRequired()])
-    country = StringField("Country", validators = [DataRequired()])
+    #country = StringField("Country", validators = [DataRequired()])
     submit = SubmitField("Update")
 
     def validate_username(self, username):
