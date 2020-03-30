@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block head %}
-  <title>Accout</title>
+  <title>My Accout</title>
 
 {% endblock %}
 
@@ -11,10 +11,33 @@
      <div class="media-body">
        <h2 class="account-heading">{{current_user.username}}</h2>
        <p class="text-secondary">{{current_user.email}}</p>
+       <div class="col">
+        Following <span>{{ current_user.followed.count() - 1 }}</span>
+    </div>
+    <div class="col">
+      Followers <span>{{ current_user.followers.count() - 1 }}</span>
+  </div>
      </div>
    </div>
+
+   <div>
+    <h1>{{ current_user.username }}</h1>
+    <p>
+            from <a href="http://maps.google.com/?q={{ current_user.country }}">{{ current_user.country }}</a><br>
+
+    </p>
+   </div>
+   <a href="{{url_for('users.update')}}">Update Account</a>
+    <br>
+  <a href="{{url_for('users.myprofile')}}">My Profile</a>
+   <div>
+     <h2>My Posts</h2>
+     {% for p in post %}
+     <div>{{p.title}}</div>
+     <div class="col">
+      <img src="{{url_for('static', filename = 'postpics/' + p.picture)}}" class="card-img-top" style="width: 200px; height: 200;" alt="..." width="50" height="100">
+     </div>
+     {% endfor %}
+   </div>
  </div>
-<a href="{{url_for('users.update')}}">Update Account</a>
-<br>
-<a href="{{url_for('users.myprofile')}}">My Profile</a>
 {% endblock %}

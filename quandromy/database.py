@@ -83,6 +83,7 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(120), unique = True, nullable = False, index = True)
     country = db.Column(db.String(200))
+    #name = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -133,7 +134,7 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
         super(User, self).__init__(**kwargs)
         if self.role is None:
             #if self.email == current_app.config['FLASKY_ADMIN']:
-             #   self.role = Role.query.filter_by(name='Administrator').first()
+                #self.role = Role.query.filter_by(name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
         self.follow(self)   #Even though the queries are working as designed, most users will expect to see their
@@ -193,6 +194,9 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
         return Post.query.join(Follow, Follow.followed_id == Post.author_id)\
             .filter(Follow.follower_id == self.id)
 
+    def __repr__(self):
+        return '<User %r>' % self.username
+
 class AnonymousUser(AnonymousUserMixin):
     """
 For added convenience, a custom AnonymousUser class that implements the can()
@@ -225,9 +229,8 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
     def __repr__(self):
-        return f'''{[self.date_posted, self.title, self.describe, self.picture]}
+        return f'''{[self.date_posted, self.title]}
                  '''
-
 
 class Comment(db.Model):
     __tablename__ = 'comments'

@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename = 'styles/main.css')}}">
       {% block head %}{% endblock %}
   </head>
+  {% if current_user.is_authenticated %}
   <nav class="container sticky-top navbar navbar-expand-lg navbar-dark bg-dark mb-2 mt-2">
     <a class="navbar-brand text-warning" href="{{url_for('main.index')}}" >Quantrix</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,20 +20,8 @@
 
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
   <ul class="navbar-nav mr-auto">
-    {% if current_user.is_authenticated %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{url_for('users.logout')}}">Logout</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{url_for('users.account')}}"><i class="far fa-user"></i></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{url_for('posts.new_post')}}">New Post</a>
-        </li>
-        <li class="nav-item">
-          <img class="rounded-circle account-img my-img mr-sm-2" src="{{url_for('static', filename = 'img/' + current_user.image_file)}}" alt="profile pic">
-        </li>
-    {% else %}
+    
+      
         <li class="nav-item">
           <a class="nav-link" href="#">Notifications</a>
         </li>
@@ -40,10 +29,17 @@
           <a class="nav-link" href="#">Messages</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Account</a>
+          <a class="nav-link" href="{{url_for('users.account')}}">Account</a>
         </li>
-
-    {% endif %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('users.logout')}}">Logout</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('posts.new_post')}}">New Post</a>
+        </li>
+        <li class="nav-item">
+          <img class="rounded-circle account-img my-img mr-sm-2" src="{{url_for('static', filename = 'img/' + current_user.image_file)}}" alt="profile pic">
+        </li>
   </ul>
   <form class="form-inline my-2 my-lg-0">
     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -52,7 +48,7 @@
   </form>
 </div>
 </nav>
-
+{% endif %}
   <body class = "container">
     {% with messages = get_flashed_messages(with_categories = true)%}
       {% if messages %}

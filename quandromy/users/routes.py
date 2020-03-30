@@ -2,11 +2,27 @@ from flask import  render_template, url_for, redirect, flash, request, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from quandromy.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetPassword, ResetPasswordForm
 from quandromy import bcrypt, db,login_manager
-from quandromy.database import User, Follow, Post
+from quandromy.database import User, Follow, Post, Permission
 from quandromy.users.utils import save_picture, save_picture2, send_email
 from . import users
 from ..decorators import admin_required, permission_required
 
+"""
+@users.before_app_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.ping()
+        if request.endpoint \
+                and request.blueprint != 'users' \
+                and request.endpoint != 'static':
+            return redirect(url_for('users.unconfirmed'))
+"""
+
+@users.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    return render_template('users/unconfirmed.html')
 
 @users.route("/register", methods = ["GET", "POST"])
 def register():
@@ -40,9 +56,13 @@ def login():
             flash("Login unsuccessful, please try again", 'danger')
     return render_template("users/login.html", form = form)
 
-@users.route("/dashboard")
-def dashboard():
-    return render_template('users/dashboard.html')
+
+@users.route("/dashboard/<string:username>")
+def dashboard(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = Post.query.filter_by(author=user)
+    image_file = url_for('static', filename = 'img/' + user.image_file)
+    return render_template('users/dashboard.html', user = user, posts = posts, image_file = image_file)
 
 @users.route('/logout')
 def logout():
@@ -53,9 +73,10 @@ def logout():
 @users.route('/account', methods = ["POST", 'GET'])
 @login_required
 def account():
+    post = Post.query.filter_by(author = current_user)
     picture_file = current_user.image_file
     image_file = url_for('static', filename = 'img/' + current_user.image_file)
-    return render_template('users/account.html', image_file = image_file)
+    return render_template('users/account.html', image_file = image_file, post = post)
 
 
 @users.route('/update', methods = ['POST', 'GET'])
@@ -106,7 +127,7 @@ def follow(user_id):
 """
 @users.route('/follow/<username>')
 @login_required
-@permission_required(Permission.FOLLOW)
+#@permission_required(Permission.FOLLOW)
 def follow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -114,11 +135,11 @@ def follow(username):
         return redirect(url_for('.index'))
     if current_user.is_following(user):
         flash('You are already following this user.')
-        return redirect(url_for('.user', username=username))
+        return redirect(url_for('main.index', username=username))
     current_user.follow(user)
     db.session.commit()
     flash('You are now following %s.' % username)
-    return redirect(url_for('.user', username=username))
+    return redirect(url_for('main.index', username=username))
 
 
 @users.route("/reset_password", methods = ["GET", "POST"])
