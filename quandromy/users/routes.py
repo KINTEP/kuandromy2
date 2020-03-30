@@ -5,6 +5,7 @@ from quandromy import bcrypt, db,login_manager
 from quandromy.database import User, Follow, Post
 from quandromy.users.utils import save_picture, save_picture2, send_email
 from . import users
+from ..decorators import admin_required, permission_required
 
 
 @users.route("/register", methods = ["GET", "POST"])
@@ -96,13 +97,29 @@ def load_user(user_id):
 @login_required
 def follow(user_id):
     user = User.query.get_or_404(user_id)
-    first = Followers.query.filter_by(following=user.username).first()
-    follow = Followers(following = user.username, followed = current_user)
+    first = Follow.query.filter_by(following=user.username).first()
+    follow = Follow(following = user.username, followed = current_user)
     db.session.add(follow)
     db.session.commit()
     flash(f'You are now following {user.username}', 'success')
     return render_template('main/home3.html', first = first)
 """
+@users.route('/follow/<username>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def follow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('.index'))
+    if current_user.is_following(user):
+        flash('You are already following this user.')
+        return redirect(url_for('.user', username=username))
+    current_user.follow(user)
+    db.session.commit()
+    flash('You are now following %s.' % username)
+    return redirect(url_for('.user', username=username))
+
 
 @users.route("/reset_password", methods = ["GET", "POST"])
 def reset_request():
