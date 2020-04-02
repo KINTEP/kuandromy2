@@ -28,15 +28,25 @@
           <li class="nav-item dropdown ">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"></a>
             <div class="dropdown-menu bg-info">
+              {% if current_user.is_following(post.author) %}
               <a class="dropdown-item" href="#">Report</a>
-              <a class="dropdown-item" href="#">Unfollow</a>
+              <a class="dropdown-item" href="{{url_for('users.unfollow', username = post.author.username)}}">Unfollow</a>
               <a class="dropdown-item" href="#">Block</a>
               <a class="dropdown-item" href="#">Hide</a>
               <a class="dropdown-item" href="#">Embed</a>
-              <a class="dropdown-item" href="#">Message</a>
+              
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Cancel</a>
+              {% elif not current_user.is_following(post.author) %}
+              <a class="dropdown-item" href="#">Report</a>
+              <a class="dropdown-item" href="#">Block</a>
+              <a class="dropdown-item" href="#">Hide</a>
+              <a class="dropdown-item" href="#">Embed</a>
+              <a href="{{ url_for('users.send_message', recipient=post.author.username) }}">Message</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="#">Edit</a>
               <a class="dropdown-item" href="#">Cancel</a>
+              {% endif %}
             </div>
             </li>
           </ul>
@@ -65,12 +75,15 @@
               <div class="card-footer text-muted">{{post.title}}</div>
 
               <div class="row">
-                
               </div>
                     <a href="#" class="btn btn-warning mr-4"><i class="fas fa-heart"></i></a>
-                    <a href="#" class="btn btn-warning mr-4"><i class="far fa-comment"></i></a>
                     <a href="#" class="btn btn-warning mr-4"><i class="fas fa-share-alt-square"></i></a>
                     <a href="#" class="btn btn-warning mr-4" ><i class="fas fa-shopping-cart"></i></a>
+                    <small>
+                        <div class="col-6">
+                  
+                          </div>
+                    </small>
           </div>
         </div>
         {% endfor %}

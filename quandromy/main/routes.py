@@ -1,12 +1,39 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, session
 from flask_login import current_user
-from quandromy.database import Post, User
+from quandromy.database import Post, User, Comment
 from . import main
-from quandromy.users.forms import LoginForm
+from quandromy.users.forms import LoginForm, CommentForm
 from flask_login import login_required
 from quandromy import bcrypt
 from flask_login import login_user
+from quandromy import db
 
+"""
+@main.route("/home", methods = ["GET", "POST"])
+def home():
+    Users = User.query.all()
+    posts = Post.query.order_by(Post.date_posted.desc()).all()
+    form = LoginForm()
+    form2 = CommentForm()
+    if session.get('username'):
+        return render_template('main/home3.html')
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user)
+            next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
+            return redirect(next) if next_page else redirect(url_for('users.account'))
+        else:
+            flash("Login unsuccessful, please try again or register", 'danger')
+    if form2.validate_on_submit():
+        comment = Comment(body = form2.comment)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Commented')
+    return render_template('main/home3.html', posts = posts, Users= Users, form = form, form2 = form2)
+"""
+
+@main.route("/", methods = ["GET", "POST"])
 @main.route("/index", methods = ["GET", "POST"])
 def index():
     Users = User.query.all()
@@ -21,6 +48,25 @@ def index():
         else:
             flash("Login unsuccessful, please try again or register", 'danger')
     return render_template('main/home4.html', posts = posts, Users= Users, form = form)
+"""
+@main.route('/comment/<int:postid>')
+#@login_required
+#@permission_required(Permission.FOLLOW)
+def comment(postid):
+    post = Post.query.get_or_404(postid)
+    return render_template('comment.html', postid = post.id)
+"""
+@main.route('/comment/<int:postID>', methods = ['GET', 'POST'])
+def comment(postID):
+    form3 = CommentForm()
+    post = Post.query.get_or_404(postID)
+    comments = Comment.query.filter_by(post = postID)
+    if form3.validate_on_submit():
+        comment = Comment(body = form3.comment.data, author = current_user.username, post = post.id)
+        db.session.add(comment)
+        db.session.commit()
+    return render_template('main/comment.html', form3 = form3, 
+                postID = post.id, comments = comments, post = post)
 
 @main.route('/about')
 def about():

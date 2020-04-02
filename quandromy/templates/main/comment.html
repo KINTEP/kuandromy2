@@ -1,0 +1,29 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>About</title>
+{% endblock %}
+{% block div %}
+<form class="" action="" method="POST">
+    {{form3.hidden_tag()}}
+          <div class="form-group">
+              {% if form3.comment.errors %}
+                  {{form3.comment(class = 'form-control form-control-sm is-invalid')}}
+                <div class="invalid-feedback">
+                  {%for error in form3.comment.errors%}
+                    <span>{{error}}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                {{form3.comment(class = 'form-control form-control-sm')}}
+              {% endif %}
+              {{form3.submit(class = "btn btn-outline-info")}}
+          </div>
+  </form>
+
+  <div>
+    {% for comment in comments %}
+    <li>{{comment}}</li>
+    {% endfor %}
+  </div>
+{% endblock %}
+

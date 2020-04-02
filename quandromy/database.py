@@ -1,7 +1,7 @@
 #Creating the database
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from quandromy import db, login_manager
+from quandromy import db, login_manager, app
 #from quandromy import app
 from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
@@ -83,13 +83,15 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(120), unique = True, nullable = False, index = True)
     country = db.Column(db.String(200))
-    #name = db.Column(db.String(64))
+    name = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     #avatar_hash = db.Column(db.String(32))
     image_file = db.Column(db.String(20), nullable = False, default = 'default.png')
+    last_message_read_time = db.Column(db.DateTime)
     password = db.Column(db.String(60), nullable = False)
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
     Post = db.relationship('Post', backref = 'author', lazy = 'dynamic')
     followed = db.relationship('Follow',
                                foreign_keys=[Follow.follower_id],               #SQLAlchemy cannot use the association table transparently because that will not give
@@ -101,7 +103,13 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
                                 backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    messages_sent = db.relationship('Message',
+                                    foreign_keys='Message.sender_id',
+                                    backref='sender', lazy='dynamic')
+    messages_received = db.relationship('Message',
+                                        foreign_keys='Message.recipient_id',
+                                        backref='recipient', lazy='dynamic')
+    
 
     @staticmethod
     def add_self_follows():
@@ -146,6 +154,10 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
 #role they have been assigned. The implementation simply defers to the role methods
 #added previously.
 #can() and is_administrator()
+    def new_messages(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Message.query.filter_by(recipient=self).filter(
+            Message.timestamp > last_read_time).count()
 
     def can(self, perm):
         """
@@ -235,16 +247,27 @@ class Post(db.Model):
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.Text)
-    body_html = db.Column(db.Text)
+    body = db.Column(db.String(50))
+    #body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     disabled = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
- 
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'Message: {self.body}'
+
 
 db.create_all()
+
+
 
 
 

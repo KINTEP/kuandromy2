@@ -24,9 +24,10 @@
     <h1>{{ current_user.username }}</h1>
     <p>
             from <a href="http://maps.google.com/?q={{ current_user.country }}">{{ current_user.country }}</a><br>
-
     </p>
    </div>
+   <div>Last seen {{ current_user.last_seen }}</div>
+
    <a href="{{url_for('users.update')}}">Update Account</a>
     <br>
   <a href="{{url_for('users.myprofile')}}">My Profile</a>
