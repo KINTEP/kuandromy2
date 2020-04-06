@@ -47,7 +47,8 @@ def home():
 @main.route("/index", methods = ["GET", "POST"])
 def index():
     Users = User.query.all()
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
+    #posts = Post.query.order_by(Post.date_posted.desc()).all()
+    posts = current_user.followed_posts.all()
     form = LoginForm()
     """
     comment = Comment()

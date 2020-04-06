@@ -204,7 +204,8 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
 
     @property
     def followed_posts(self):
-        return Post.query.join(Follow, Follow.followed_id == Post.author_id)\
+        """This will return all posts of followings user"""
+        return Post.query.join(Follow, Follow.followed_id == Post.user_id)\
             .filter(Follow.follower_id == self.id)
 
     def __repr__(self):
