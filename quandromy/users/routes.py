@@ -1,7 +1,8 @@
-from flask import  render_template, url_for, redirect, flash, request, abort
+from flask import  render_template, url_for, redirect, flash, request, abort, g
 from flask_login import login_user, current_user, logout_user, login_required
 from quandromy.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm, 
                 RequestResetPassword, ResetPasswordForm, MessageForm)
+from quandromy.main.forms import SearchForm
 from quandromy import bcrypt, db,login_manager
 from quandromy.database import User, Follow, Post, Permission, Message
 from quandromy.users.utils import save_picture, save_picture2, send_email
@@ -25,6 +26,7 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+        g.search_form = SearchForm()
 
 
 @users.route('/unconfirmed')
@@ -40,8 +42,9 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hash_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(fullname = form.fullname.data, username = form.username.data, email = form.email.data,
-        image_file = form.picture.data, password = hash_password)
+        user = User(fullname = form.fullname.data, username = form.username.data, 
+        email = form.email.data,image_file = form.picture.data, password = hash_password, 
+        about_me = form.about_me.data)
         db.session.add(user)
         db.session.commit()
         user = User.query.filter_by(email=form.email.data).first()
@@ -60,7 +63,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
-            return redirect(next) if next_page else redirect(url_for('users.account'))
+            return redirect(next) if next_page else redirect(url_for('main.index'))
         else:
             flash("Login unsuccessful, please try again", 'danger')
     return render_template("users/login.html", form = form)
@@ -94,6 +97,10 @@ def update():
     if form.validate_on_submit():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        current_user.about_me = form.about_me.data
+        current_user.fullname = form.fullname.data
         db.session.commit()
         flash("You account has been updated", 'success')
         return redirect(url_for('users.account'))
@@ -101,7 +108,7 @@ def update():
         form.username.data = current_user.username
         form.email.data = current_user.email
         form.fullname.data = current_user.fullname
-        #form.country.data = current_user.country
+        form.about_me.data = current_user.about_me
     image_file = url_for('static', filename = 'img/' + current_user.image_file)
     return render_template('users/update.html', image_file = image_file, form =form)
     #return render_template('update.html', form = form)
@@ -176,8 +183,8 @@ def send_message(recipient):
                       body=form.message.data)
         db.session.add(msg)
         db.session.commit()
-        flash(('Your message has been sent.'))
-        return redirect(url_for('users.account', username=recipient))
+        flash('Your message has been sent.', 'success')
+        return redirect(url_for('users.dashboard', username=recipient))
     return render_template('users/send_message.html', form=form, recipient=recipient)
 
 @users.route('/messages')
@@ -185,9 +192,11 @@ def send_message(recipient):
 def messages():
     current_user.last_message_read_time = datetime.utcnow()
     db.session.commit()
-    messages = current_user.messages_received.order_by(
+    messages_rec = current_user.messages_received.order_by(
         Message.timestamp.desc())
-    return render_template('users/messages.html', messages=messages)
+    messages_sent = current_user.messages_sent.order_by(
+        Message.timestamp.desc())
+    return render_template('users/messages.html', messages_rec=messages_rec, messages_sent = messages_sent)
 
 @users.route("/reset_password", methods = ["GET", "POST"])
 def reset_request():
@@ -218,3 +227,4 @@ def reset_token(token):
         flash('Your password has been updated, you are now able to log in', 'success')
         return redirect(url_for('users.login'))
     return render_template('users/reset_token.html', form = form)
+

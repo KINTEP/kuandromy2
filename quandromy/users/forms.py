@@ -10,6 +10,7 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators = [DataRequired(), Length(min = 2, max = 30)])
     email = StringField("Email", validators = [DataRequired(), Email()])
     #country = StringField("Country", validators = [DataRequired()])
+    about_me = TextAreaField('About me', validators = [Length(min = 2, max =50)])
     picture = FileField("Update Profile Picture", validators = [FileAllowed(['jpg', 'png'])])
     password = PasswordField("Password", validators = [DataRequired()])
     confirm_password = PasswordField("Confirm Password", validators = [DataRequired(), EqualTo("password")])
@@ -37,6 +38,8 @@ class UpdateAccountForm(FlaskForm):
     username = StringField("Username", validators = [DataRequired(), Length(min = 2, max = 30)])
     email = StringField("Email", validators = [DataRequired(), Email()])
     fullname = StringField("Full Name", validators = [DataRequired()])
+    about_me = TextAreaField('About me', validators = [Length(min = 2, max =50)])
+    
     #country = StringField("Country", validators = [DataRequired()])
     submit = SubmitField("Update")
 

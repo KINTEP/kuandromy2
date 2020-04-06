@@ -1,11 +1,20 @@
-from flask import  render_template, url_for, redirect, flash, request, abort
+from flask import  render_template, url_for, redirect, flash, request, abort, g
 from flask_login import current_user, login_required
 from quandromy.posts.forms import PostForm
-from quandromy.database import Post
+from quandromy.main.forms import SearchForm
+from quandromy.database import Post 
 from quandromy.users.utils import save_picture, save_picture2
 from quandromy import db
 from . import posts
+from datetime import datetime
 
+@posts.before_request
+def before_request():
+    """This records the time of the user immediately he logs in"""
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+        g.search_form = SearchForm()
 
 @posts.route('/post/new', methods = ["POST", "GET"])
 @login_required

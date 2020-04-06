@@ -77,6 +77,7 @@ class Follow(db.Model):
 class User(db.Model, UserMixin): #The users mixing class helps in user management. We inherit the "is_authenticated" method from here
     """docstring for ."""
     __tablename__ = 'users'
+    __searchable__ = ['fullname', 'username']
     id = db.Column(db.Integer, primary_key = True)
     fullname = db.Column(db.String(100), nullable = False)
     username = db.Column(db.String(20), unique = True, nullable = False, index = True)
@@ -232,6 +233,7 @@ def load_user(user_id):
 class Post(db.Model):
     """docstring forProducts."""
     __tablename__ = 'posts'
+    __searchable__ = ['title', 'describe']
     id = db.Column(db.Integer, primary_key = True)
     date_posted = db.Column(db.DateTime, nullable = False, default = datetime.utcnow())
     title = db.Column(db.String(50), nullable = False)
@@ -253,6 +255,11 @@ class Comment(db.Model):
     disabled = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+
+    def __repr__(self):
+        return f'''{self.timestamp, self.body}
+                 '''
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)

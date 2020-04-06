@@ -3,9 +3,17 @@
   <title>Messages</title>
 {% endblock %}
 {% block div %}
-<h1>{{('Messages') }}</h1>
-{% for mess in messages %}
+<h1>{{('Messages Received') }}</h1>
+{% for mess in messages_rec %}
     <div>From: {{mess.sender}}</div>
+    <div>Time: {{mess.timestamp}}</div>
+    <div>{{mess}}</div>
+    <hr>
+{% endfor %}
+
+<h1>{{('Messages Sent') }}</h1>
+{% for mess in messages_sent %}
+    <div>To: {{mess.recipient}}</div>
     <div>Time: {{mess.timestamp}}</div>
     <div>{{mess}}</div>
     <hr>

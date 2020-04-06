@@ -1,0 +1,15 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>About</title>
+{% endblock %}
+{% block div %}
+  <h1>Search results for in Posts: {{query}}</h1>
+  {% for post in results1 %}
+        {% include 'include1.html' %}
+  {% endfor %}
+  <hr>
+  <h1>Search results for in Users: {{query}}</h1>
+  {% for user in results2 %}
+        {% include 'include2.html' %}
+  {% endfor %}
+{% endblock %}

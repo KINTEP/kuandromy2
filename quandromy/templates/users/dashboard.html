@@ -11,12 +11,15 @@
      <div class="media-body">
        <h2 class="account-heading">{{user.username}}</h2>
        <p class="text-secondary">{{user.email}}</p>
+       <p><span style="font-weight: bold;">About me:</span></p>
+       <p class="text-secondary">{{user.about_me}}</p>
        <div class="col">
         Following <span>{{ user.followed.count() - 1 }}</span>
     </div>
     <div class="col">
       Followers <span>{{ user.followers.count() - 1 }}</span>
   </div>
+  
   <hr>
      </div>
    </div>

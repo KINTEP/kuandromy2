@@ -57,6 +57,20 @@
               </div>
 
               <div class="form-group">
+                {{form.about_me.label(class = 'form-control-label')}}
+                {% if form.about_me.errors %}
+                    {{form.about_me(class = 'form-control form-control-sm is-invalid')}}
+                  <div class="invalid-feedback">
+                    {%for error in form.about_me.errors%}
+                      <span>{{error}}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{form.about_me(class = 'form-control form-control-sm')}}
+                {% endif %}
+            </div>
+
+              <div class="form-group">
                   {{form.password.label(class = 'form-control-label')}}
                   {% if form.password.errors %}
                       {{form.password(class = 'form-control form-control-sm is-invalid')}}
@@ -98,6 +112,12 @@
      <div class="form-group">
        {{form.submit(class = "btn btn-outline-info")}}
      </div>
+     <div>
+      <p>Register with:</p>
+      <li><a href="">Facebook</a></li>
+      <li><a href="">Twitter</a></li>
+      <li><a href="">Gmail</a></li>
+    </div>
      <hr>
      <div><small class="txt-muted">
        Already have an account? Please <a href="{{url_for('users.login')}}">Log In</a>
