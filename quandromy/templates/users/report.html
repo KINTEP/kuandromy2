@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>Reports</title>
+{% endblock %}
+{% block div %}
+	<div style="padding-top: 5%">
+		<img src="{{url_for('static', filename = 'postpics/' + post.picture)}}" style="width: 20%; height: 20%">
+		<hr>
+		<div>
+			<h5>Write your report on {{post.author.fullname}}'s post</h5>
+		</div>
+		<form>
+			<input type="text" name="report">
+			<input type="submit" name="report">
+		</form>
+
+	</div>
+{% endblock %}

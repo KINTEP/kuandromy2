@@ -4,11 +4,12 @@ from quandromy.users.forms import (RegistrationForm, LoginForm, UpdateAccountFor
                 RequestResetPassword, ResetPasswordForm, MessageForm)
 from quandromy.main.forms import SearchForm
 from quandromy import bcrypt, db,login_manager
-from quandromy.database import User, Follow, Post, Permission, Message
-from quandromy.users.utils import save_picture, save_picture2, send_email
+from quandromy.database import User, Follow, Post, Permission, Message, Report
+from quandromy.users.utils import save_picture, save_picture2, send_password_reset_email
 from . import users
 from ..decorators import admin_required, permission_required
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 
 """
 @users.before_app_request
@@ -41,9 +42,9 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hash_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        hash_password = generate_password_hash(form.password.data)
         user = User(fullname = form.fullname.data, username = form.username.data, 
-        email = form.email.data,image_file = form.picture.data, password = hash_password, 
+        email = form.email.data,image_file = form.picture.data, password = hash_password,
         about_me = form.about_me.data)
         db.session.add(user)
         db.session.commit()
@@ -60,7 +61,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and user.check_password(form.password.data):
             login_user(user)
             next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
             return redirect(next) if next_page else redirect(url_for('main.index'))
@@ -198,33 +199,64 @@ def messages():
         Message.timestamp.desc())
     return render_template('users/messages.html', messages_rec=messages_rec, messages_sent = messages_sent)
 
-@users.route("/reset_password", methods = ["GET", "POST"])
-def reset_request():
+@users.route("/reset_password_token", methods = ["GET", "POST"])
+def reset_password_token():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = RequestResetPassword()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        send_email(user)
-        flash("An email has been sent with instructions to reset password", "info")
+        if user:
+            send_password_reset_email(user)
+            flash("An email has been sent with instructions to reset password", "info")
         return redirect(url_for("users.login"))
     return render_template('users/reset_request.html', form = form)
 
-@users.route("/reset_password/<token>", methods = ["GET", "POST"])
+@users.route("/reset_token/<token>", methods = ["GET", "POST"])
 def reset_token(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    user = User.verify_reset_token(token)
-    if user is None:
+    user = User.verify_reset_password_token(token)
+    if not user:
         flash("That is an invalid or expired token", "warning")
-        return redirect(url_for("users.reset_request"))
+        return redirect(url_for("users.reset_password_token"))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        hash_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user.password =  hash_password
+        user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Your password has been updated, you are now able to log in', 'success')
         return redirect(url_for('users.login'))
     return render_template('users/reset_token.html', form = form)
+
+
+@users.route('/block/<username>')
+@login_required
+#@permission_required(Permission.FOLLOW)
+def block(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('.index'))
+    if not current_user.is_following(user):
+        flash('You are not following this user.')
+        return redirect(url_for('.user', username=username))
+    current_user.unfollow(user)
+    db.session.commit()
+    flash(f'You blocked {username}')
+    return redirect(url_for('main.index', username=username))
+
+@users.route('/report/<int:id>', methods = ["GET", "POST"])
+@login_required
+def report(id):
+    post = Post.query.get_or_404(id)
+    if request.method == "POST":
+        body = request.form.get("name")
+        report = Report(body = body, user_id = current_user.id, post_id = post.id)
+        db.session.add(report)
+        db.session.commit()
+        flash("Your report has been submited", "success")
+        return redirect("main.index")
+    return render_template("users/report.html", id = post.id, post = post)
+
 

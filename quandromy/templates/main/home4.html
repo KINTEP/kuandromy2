@@ -23,24 +23,24 @@
     </div>
     <div class="col-6">
       {% for post in posts %}
-      <div class="card mb-3">
+      <div class="card mb-3" style="display: '';" id="posters">
         <ul class="nav">
           <li class="nav-item dropdown ">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"></a>
             <div class="dropdown-menu bg-info">
               {% if current_user.is_following(post.author) %}
-              <a class="dropdown-item" href="#">Report</a>
+              <a class="dropdown-item btn" href="{{url_for('users.report', id = post.id)}}" name = "report">Report</a>
               <a class="dropdown-item" href="{{url_for('users.unfollow', username = post.author.username)}}">Unfollow</a>
-              <a class="dropdown-item" href="#">Block</a>
-              <a class="dropdown-item" href="#">Hide</a>
+              <a class="dropdown-item" href="{{url_for('users.block', username = post.author.username)}}">Block</a>
+              <a class="hide-element dropdown-item" href=""  style="display: '';" name="hidden" id="hide1">Hide</a>
               <a class="dropdown-item" href="#">Embed</a>
               
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="#">Cancel</a>
               {% elif not current_user.is_following(post.author) %}
               <a class="dropdown-item" href="#">Report</a>
-              <a class="dropdown-item" href="#">Block</a>
-              <a class="dropdown-item" href="#">Hide</a>
+              <a class="dropdown-item" href="{{url_for('users.block', username = post.author.username)}}">Block</a>
+              <a class="hide-element dropdown-item" href="" style="display: ">Hide</a>
               <a class="dropdown-item" href="#">Embed</a>
               <a href="{{ url_for('users.send_message', recipient=post.author.username) }}">Message</a>
               <div class="dropdown-divider"></div>
@@ -94,15 +94,15 @@
     </div>
 
     <div class="col">
-      <h3 class="text-white text-center bg-primary">People You Can Follow</h3>
-      <div class="">
+      <h3 class="text-white text-center bg-primary" style="width: 200px; margin-right:10%; margin-left: 50%;">People You May Follow</h3>
+      <div class="" style="overflow: scroll; background-color: red; height: 300px; width: 200px; margin-right:10%; margin-left: 50%;">
 
         {% for user in Users if user != current_user and not current_user.is_following(user) %}
         <div id = 'list-example' class="">
         <ul class="list-group list-group-horizontal-xm">
           <li class="list-group-item">
             <img src="{{url_for('static', filename = 'img/' + user.image_file)}}" class="rounded-circle account-img my-img img1"></img>
-            <a class="ml-2 mr-2" href="{{url_for('users.dashboard', username = user.username)}}">{{user.fullname}}</a>
+            <a class="ml-2 mr-2" href="{{url_for('users.dashboard', username = user.username)}}" style="font-size: 10px;">{{user.fullname}}</a>
             <div class="">
               <a href="{{url_for('users.follow', username=user.username)}}" class="">Follow</a>
             </div>
@@ -158,7 +158,7 @@
                    {{form.submit(class = "btn btn-outline-info")}}
                  </div>
                  <div class="">
-                   <small class = 'text-muted'><a href="{{url_for('users.reset_request')}}">Forgot Password?</a></small>
+                   <small class = 'text-muted'><a href="{{url_for('users.reset_password_token')}}">Forgot Password?</a></small>
               
                  </div>
                  <hr>
@@ -174,5 +174,37 @@
                 </div>
               </div>
             {% endif %}
+
+<script type="text/javascript">
+  function load(){
+
+  let request = new XMLHttpRequest();
+    request.open("POST", "/hide", true);
+  request.onload = function(){
+    response = request.responseText;
+    Data = JSON.parse(response);
+        //data1 = data1.data;
+     //data1.forEach(add_post);
+  }; 
+    const data = new FormData();
+    data.append('post_id', post.id);
+  request.send(data);
+    //xhttp.send("start=${start}&end={Ford}");
+return false;
+};
+
+
+//This is to make the hide button work
+</script>
+
+<script type="text/javascript">
+  window.onload =  function () {
+  hide = document.querySelector(".hide-element");
+  hide.onclick = function (){
+  this.parentElement.parentElement.parentElement.parentElement.remove();
+
+  };
+};
+</script>
            
 {% endblock %}

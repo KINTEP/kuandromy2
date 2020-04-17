@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, session, flash, g
+from flask import render_template, request, redirect, url_for, session, flash, g, jsonify
 from flask_login import current_user
 from quandromy.database import Post, User, Comment
 from . import main
@@ -62,7 +62,7 @@ def index():
         """
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and user.check_password(form.password.data):
             login_user(user)
             next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
             return redirect(next) if next_page else redirect(url_for('users.account'))
@@ -125,4 +125,11 @@ def main():
     return render_template('main/main.html', form = form)
 """
     
+@main.route('/hide', methods = ["POST"])
+def hide():
+    id = int(request.form.get('post_id'))
+    post_id = Post.query.get_or_404(id)
+    return jsonify({"post_id": post_id})
+
+
         

@@ -4,7 +4,7 @@ from quandromy.posts.forms import PostForm
 from quandromy.main.forms import SearchForm
 from quandromy.database import Post 
 from quandromy.users.utils import save_picture, save_picture2
-from quandromy import db
+from quandromy import db, app
 from . import posts
 from datetime import datetime
 

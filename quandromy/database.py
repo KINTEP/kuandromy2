@@ -2,9 +2,13 @@
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from quandromy import db, login_manager, app
+from hashlib import md5
+from time import time
 #from quandromy import app
 from flask import current_app
 from flask_login import UserMixin, AnonymousUserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
 
 class Permission:
     FOLLOW = 1
@@ -84,15 +88,15 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(120), unique = True, nullable = False, index = True)
     country = db.Column(db.String(200))
-    name = db.Column(db.String(64))
+    #name = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
-    #avatar_hash = db.Column(db.String(32))
     image_file = db.Column(db.String(20), nullable = False, default = 'default.png')
     last_message_read_time = db.Column(db.DateTime)
     password = db.Column(db.String(60), nullable = False)
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    Report = db.relationship('Report', backref='author', lazy='dynamic')
     Post = db.relationship('Post', backref = 'author', lazy = 'dynamic')
     followed = db.relationship('Follow',
                                foreign_keys=[Follow.follower_id],               #SQLAlchemy cannot use the association table transparently because that will not give
@@ -180,6 +184,27 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
         self.last_seen = datetime.utcnow()
         db.session.add(self)
     
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password1):
+        return check_password_hash(self.password, password1)
+
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'],
+            algorithm='HS256').decode('utf-8')
+
+    staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, app.config['SECRET_KEY'],
+                            algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
+    
     def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self, followed=user)
@@ -202,6 +227,7 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
 
+
     @property
     def followed_posts(self):
         """This will return all posts of followings user"""
@@ -209,7 +235,7 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
             .filter(Follow.follower_id == self.id)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return f'User: {self.username}'
 
 class AnonymousUser(AnonymousUserMixin):
     """
@@ -242,6 +268,7 @@ class Post(db.Model):
     picture = db.Column(db.String(20), nullable = False, default = 'default.png')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    report = db.relationship('Report', backref='report', lazy='dynamic')
 
     def __repr__(self):
         return f'''{[self.date_posted, self.title]}
@@ -272,7 +299,18 @@ class Message(db.Model):
     def __repr__(self):
         return f'Message: {self.body}'
 
+class Report(db.Model):
+    __tablename__ = 'reports'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(50))
+    #body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
 
+    def __repr__(self):
+        return f'''{self.timestamp, self.body}
+                 '''
 db.create_all()
 
 

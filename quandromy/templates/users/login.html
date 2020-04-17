@@ -1,9 +1,40 @@
 {% extends 'base.html' %}
 {% block head %}
   <title>Log In</title>
+  <!--
+
+<script src="https://sdk.accountkit.com/en_US/sdk.js"></script>
+  -->
+
 {% endblock %}
 
 {% block div %}
+<div id="fb-root"></div>
+<!--
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v6.0&appId=214460929983067&autoLogAppEvents=1"></script>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{207135580713601}',
+      cookie     : true,
+      xfbml      : true,
+      version    : '{v6.0}'
+    });
+      
+    FB.AppEvents.logPageView();   
+      
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+-->
 <div class="row">
   <div class="col-3">
 
@@ -51,8 +82,11 @@
      <li><a href="">Twitter</a></li>
      <li><a href="">Gmail</a></li>
    </div>
+   <!--
+    <div class="fb-login-button" data-width="" data-size="medium" data-button-type="login_with" data-layout="rounded" data-auto-logout-link="true" data-use-continue-as="true"></div>
+   -->
    <div class="">
-     <small class = 'text-muted'><a href="{{url_for('users.reset_request')}}">Forgot Password?</a></small>
+     <small class = 'text-muted'><a href="{{url_for('users.reset_password_token')}}">Forgot Password?</a></small>
 
    </div>
    <hr>
