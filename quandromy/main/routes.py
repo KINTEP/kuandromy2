@@ -1,7 +1,6 @@
-from flask import render_template, request, redirect, url_for, session, flash, g, jsonify
+from flask import render_template, request, redirect, url_for, session, flash, g, jsonify, make_response
 from flask_login import current_user
 from quandromy.database import Post, User, Comment
-from . import main
 from quandromy.users.forms import LoginForm, CommentForm
 from quandromy.main.forms import SearchForm
 from flask_login import login_required
@@ -9,6 +8,11 @@ from quandromy import bcrypt
 from flask_login import login_user
 from quandromy import db
 from datetime import datetime
+from flask import Blueprint
+
+
+main = Blueprint("main", __name__)
+
 
 @main.before_request
 def before_request():
@@ -17,6 +21,8 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
         g.search_form = SearchForm()
+
+
 
 """
 @main.route("/home", methods = ["GET", "POST"])
@@ -45,30 +51,12 @@ def home():
 
 @main.route("/", methods = ["GET", "POST"])
 @main.route("/index", methods = ["GET", "POST"])
+@login_required
 def index():
     Users = User.query.all()
     #posts = Post.query.order_by(Post.date_posted.desc()).all()
     posts = current_user.followed_posts.all()
-    form = LoginForm()
-    """
-    comment = Comment()
-    if request.method == 'POST':
-        comment.body = request.form['comment']
-        comment.post = posts.id
-        comment.author = current_user
-        db.session.add(comment)
-        db.session.commit()
-        flash('You have commented')
-        """
-    if form.validate_on_submit():
-        user = User.query.filter_by(email = form.email.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
-            return redirect(next) if next_page else redirect(url_for('users.account'))
-        else:
-            flash("Login unsuccessful, please try again or register", 'danger')
-    return render_template('main/home4.html', posts = posts, Users= Users, form = form)
+    return render_template('main/index2.html', posts = posts, Users= Users)
 """
 @main.route('/comment/<int:postid>')
 #@login_required
@@ -77,6 +65,22 @@ def comment(postid):
     post = Post.query.get_or_404(postid)
     return render_template('comment.html', postid = post.id)
 """
+
+
+
+
+@main.route('/home5')
+def home5():
+    return render_template('main/home5.html')
+
+@main.route('/data')
+def data():
+    Database = Post.query.all()
+    AllData = [data.to_json() for data in Database]
+    #global Data
+    return jsonify({'posts': AllData})
+
+
 @main.route('/comment/<int:postID>', methods = ['GET', 'POST'])
 def comment(postID):
     form3 = CommentForm()
@@ -130,6 +134,38 @@ def hide():
     id = int(request.form.get('post_id'))
     post_id = Post.query.get_or_404(id)
     return jsonify({"post_id": post_id})
+
+
+@main.route("/load", methods = ['GET','POST'])
+def load():
+
+    start = int(request.form.get('start') or 0)
+    end =  int(request.form.get('end') or (start + 9))
+
+    Database = Post.query.all()
+    Data = [data.to_json() for data in Database]
+
+    if request.form:
+        counter = end - start
+
+        if counter == 0:
+            print(f"Returning posts 0 to {end}")
+            res = make_response(jsonify(db[0: counter]), 200)
+
+        elif counter == len(Data):
+            print("No more posts")
+            res = make_response(jsonify({}), 200)
+
+        else:
+            print(f"Returning posts {start} to {end}")
+            res = make_response(jsonify(Data[start: end]), 200)
+
+    return make_response(jsonify(Data[start: end]), 200)
+
+@main.route('/load_post')
+def load_post():
+    #global Data
+    return render_template('main/load_post.html')
 
 
         

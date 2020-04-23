@@ -1,8 +1,25 @@
 {% extends 'base.html'%}
 {% block head %}
   <title>Home</title>
+  <meta property="og:url"           content="http://www.your-domain.com/your-page.html" />
+  <meta property="og:type"          content="website" />
+  <meta property="og:title"         content="Your Website Title" />
+  <meta property="og:description"   content="Your description" />
+  <meta property="og:image"         content="https://www.your-domain.com/path/image.jpg" />
+  <script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5e9aaed50ba0f9001938d4bc&product=inline-share-buttons" async="async"></script>
+
+
 {% endblock %}
 {% block div %}
+  <!-- Load Facebook SDK for JavaScript -->
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
 {% if current_user.is_authenticated %}
 <div class="row">
     <div class="col-2">
@@ -25,10 +42,11 @@
       {% for post in posts %}
       <div class="card mb-3" style="display: '';" id="posters">
         <ul class="nav">
-          <li class="nav-item dropdown ">
+          <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"></a>
             <div class="dropdown-menu bg-info">
               {% if current_user.is_following(post.author) %}
+              <div class="sharethis-inline-share-buttons"></div>
               <a class="dropdown-item btn" href="{{url_for('users.report', id = post.id)}}" name = "report">Report</a>
               <a class="dropdown-item" href="{{url_for('users.unfollow', username = post.author.username)}}">Unfollow</a>
               <a class="dropdown-item" href="{{url_for('users.block', username = post.author.username)}}">Block</a>
@@ -73,25 +91,20 @@
           <div class="card-body">
 
               <div class="card-footer text-muted">{{post.title}}</div>
-
+              <div class="fb-comments" data-href="https://developers.facebook.com/docs/plugins/comments#configurator" data-numposts="5" data-width="" style="width: 20px;"></div>
               <div class="row">
-              </div>
+              
                     <a href="#" class="btn btn-warning mr-4"><i class="fas fa-heart"></i></a>
                     <a href="#" class="btn btn-warning mr-4"><i class="fas fa-share-alt-square"></i></a>
                     <a href="#" class="btn btn-warning mr-4" ><i class="fas fa-shopping-cart"></i></a>
-                    <small>
-                        <div class="col-6">
-                            <form action="" method="POST">
-                              <input type="text" name="comment" id="comment" placeholder="Your opinion">
-                              <button type="submit" id="commentB">Post</button>
-                            </form>
-                          </div>
-                    </small>
-                
+                      <div class="fb-share-button" data-href="{{ url_for('posts.share', post_id=post.id) }}" data-layout="button_count"></div>
+                      
+                </div>
           </div>
         </div>
         {% endfor %}
     </div>
+
 
     <div class="col">
       <h3 class="text-white text-center bg-primary" style="width: 200px; margin-right:10%; margin-left: 50%;">People You May Follow</h3>
@@ -101,79 +114,33 @@
         <div id = 'list-example' class="">
         <ul class="list-group list-group-horizontal-xm">
           <li class="list-group-item">
-            <img src="{{url_for('static', filename = 'img/' + user.image_file)}}" class="rounded-circle account-img my-img img1"></img>
+            <img src="{{url_for('static', filename = 'img/' + user.image_file)}}" class="rounded-circle account-img my-img img1">
             <a class="ml-2 mr-2" href="{{url_for('users.dashboard', username = user.username)}}" style="font-size: 10px;">{{user.fullname}}</a>
             <div class="">
               <a href="{{url_for('users.follow', username=user.username)}}" class="">Follow</a>
             </div>
           </li>      
-    </ul>
-
-        </div>
+        </ul>
+    </div>
             
         {% endfor %}
       </div>
-    </div>
+            <div style="border: 2px solid; height: 200px; width: 250px; background: black; margin-top: 10%; margin-left: 40%;">
+            <h3 style="width: 50%; text-align: center;" class="text-warning text-center">COMMUNITIES</h3>
+            <ul>
+              <li class="text-primary">Topic 1</li>
+              <li class="text-primary">Topic 2</li>
+              <li class="text-primary">Topic 3</li>
+              <li class="text-primary">Topic 4</li>
+            </ul>
+          </div>
+  
 </div>
 
 {% else %}
-            <div class="row">
-                <div class="col-3">
-              
-                </div>
-                <div class="col-6">
-                  <form class="jumbotron" action="" method="POST">
-                    {{form.hidden_tag()}}
-                    <fieldset class="form-group">
-                      <legend class="border-bottom mb-4 text-info text-center bg-dark">Join For Free Today</legend>
-                          <div class="form-group">
-                              {{form.email.label(class = 'form-control-label')}}
-                              {% if form.email.errors %}
-                                  {{form.email(class = 'form-control form-control-sm is-invalid')}}
-                                <div class="invalid-feedback">
-                                  {%for error in form.email.errors%}
-                                    <span>{{error}}</span>
-                                  {% endfor %}
-                                </div>
-                              {% else %}
-                                {{form.email(class = 'form-control form-control-sm')}}
-                              {% endif %}
-                          </div>
-                          <div class="form-group">
-                              {{form.password.label(class = 'form-control-label')}}
-                              {% if form.password.errors %}
-                                  {{form.password(class = 'form-control form-control-sm is-invalid')}}
-                                <div class="invalid-feedback">
-                                  {%for error in form.password.errors %}
-                                    <span>{{error}}</span>
-                                  {%endfor%}
-                                </div>
-                              {% else %}
-                                {{form.password(class = 'form-control form-control-sm')}}
-                              {% endif %}
-                          </div>
-                    </fieldset>
-              
-                 <div class="form-group">
-                   {{form.submit(class = "btn btn-outline-info")}}
-                 </div>
-                 <div class="">
-                   <small class = 'text-muted'><a href="{{url_for('users.reset_password_token')}}">Forgot Password?</a></small>
-              
-                 </div>
-                 <hr>
-                 <div>
-                   <small class="text-muted">
-                     Don't have an account? <a href="{{url_for('users.register')}}">Join Today</a>
-                 </small></div>
-              
-                  </form>
-                </div>
-                <div class="col-3">
-              
-                </div>
-              </div>
-            {% endif %}
+
+</div>
+{% endif %}
 
 <script type="text/javascript">
   function load(){

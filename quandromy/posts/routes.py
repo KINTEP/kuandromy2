@@ -4,9 +4,12 @@ from quandromy.posts.forms import PostForm
 from quandromy.main.forms import SearchForm
 from quandromy.database import Post 
 from quandromy.users.utils import save_picture, save_picture2
-from quandromy import db, app
-from . import posts
+from quandromy import db
 from datetime import datetime
+from flask import Blueprint
+
+posts = Blueprint("posts", __name__)
+
 
 @posts.before_request
 def before_request():
@@ -62,3 +65,10 @@ def delete_post(post_id):
     db.session.commit()
     flash('Your post has been deleted', 'success')
     return redirect(url_for('main.index'))
+
+@posts.route('/share/<int:post_id>', methods = ['GET', 'POST'])
+@login_required
+def share(post_id):
+    post = Post.query.get_or_404(post_id)
+    return redirect(url_for('main.index'))
+

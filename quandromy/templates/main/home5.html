@@ -1,0 +1,98 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>4TH HOME</title>
+{% endblock %}
+{% block div %}
+  <h1></h1>
+  <title>Hello, world!</title>
+    <style type="text/css">
+      .card-group{
+        padding-left: 30%;
+        padding-right: 30%;
+        padding-bottom: 50px;
+        }
+
+
+    body {
+        padding-bottom: 50px;
+        background: black;
+            }
+
+           h1{
+        padding-left: 10%;
+        padding-right: 10%;
+        text-align: center;
+        font-weight: bolder;
+        color: white;
+      }
+
+      .card {
+        border: 2px solid;
+      }
+    </style>
+
+  </head>
+  <body>
+    <h1 class="text-color-white">CREATE ELEMENT</h1>
+    
+
+    <script type="text/javascript">
+        //‪C:\Users\Dorcas\Desktop\nice.jpg
+        window.onload = function(){
+
+          for (var i = 0; i <= 20; i++){
+               create_elements();
+               
+          };
+        };
+
+        function create_elements(){
+            //Create base div and append to body;
+            basediv = document.createElement('div')
+            basediv.className = "card-group"
+            document.querySelector('body').append(basediv)
+
+            div1 = document.createElement('div');
+            div1.className = "card";
+            div1.id = "div1";
+            div1.innerHTML = "First Div";
+            basediv.append(div1);
+
+            //Creating the image section
+            img = document.createElement('img');
+            img.className = "card-img-top";
+            img.src = "C:\\Users\\Dorcas\\Desktop\\nice.jpg";
+            div1.append(img);
+
+            //Create another div for card-body
+            div2 = document.createElement("div");
+            div2.className = "card-body";
+            div2.id = "card-body";
+            div1.append(div2);
+
+            //Create two moer children for div2 as p and h5
+            h5 = document.createElement('h5');
+            h5.className = "card-title";
+            h5.innerHTML = "Card Title";
+            div2.append(h5);
+
+            p = document.createElement('p');
+            p.className = "card-text";
+            p.innerHTML = "This portion contains all the text and news or description of the image above";
+            div2.append(p);
+
+            //Create the card footer
+            footer = document.createElement("div");
+            footer.className = "card-footer";
+            footer.id = "footer"
+            div1.append(footer);
+
+            //Create a small section that contains the footer
+            small = document.createElement('small');
+            small.className = "text-muted";
+            small.innerHTML = "Last updated 3 mins ago";
+            footer.append(small);
+
+        };
+    </script>
+{% endblock %}

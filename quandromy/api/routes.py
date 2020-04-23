@@ -1,8 +1,10 @@
 
-from quandromy import app
+from flask import current_app
 from flask_graphql import GraphQLView
 from quandromy.api.schema import schema_query, schema_mutation
-from quandromy.api import api
+from flask import Blueprint
+
+api = Blueprint("api", __name__)
 
 
 # /graphql-query

@@ -4,43 +4,55 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
-import os
-import flask_whooshalchemy
+from . Config import Config
+from flask import g
+from flask_moment import Moment
 
-app = Flask(__name__)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 
-app.config['SECRET_KEY'] = "3755199dcfb07dfa7c007558f0f591db"
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= True
-app.config['WHOOSH_BASE'] = 'path/to/whoosh/base'
-app.config['MAX_SEARCH_RESULTS'] = 50
-
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
+bcrypt = Bcrypt()
+login_manager = LoginManager()
 login_manager.login_view = 'users.login' #This enables a user to login before he can access account
 login_manager.login_message_category = 'info'
-mail = Mail(app)
+mail = Mail()
+moment = Moment()
 
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = "quantrixp@gmail.com"
-app.config['MAIL_PASSWORD'] = "quantrix2020"
+db = SQLAlchemy()
 
-db = SQLAlchemy(app)
-   
-from quandromy.users import users
-from quandromy.posts import posts
-from quandromy.main import main
-from quandromy.api.routes import api
+migrate = Migrate(db)
 
-app.register_blueprint(users)
-app.register_blueprint(posts)
-app.register_blueprint(main)
-app.register_blueprint(api)
+def create_app(config_class = Config):
+	app = Flask(__name__)
+	app.config.from_object(Config)
 
-migrate = Migrate(app, db)
+	with app.app_context():
+		db.init_app(app)
+		bcrypt.init_app(app)
+		login_manager.init_app(app)
+		mail.init_app(app)
+		migrate.init_app(app)
+		moment.init_app(app)
+
+	
+	#from quandromy.database import User, Post, Comment, Message, Follow
+
+	from quandromy.users.routes import users
+	from quandromy.posts.routes import posts
+	from quandromy.main.routes import main
+	from quandromy.api.routes import api
+	from quandromy.RestApi.posts import RestApi
+	from quandromy.github.routes import github_blueprint
+	from quandromy.facebook.routes import facebook_blueprint
+	from quandromy.twitter.routes import twitter_blueprint
+
+	app.register_blueprint(users)
+	app.register_blueprint(posts)
+	app.register_blueprint(main)
+	app.register_blueprint(api)
+	app.register_blueprint(RestApi)
+	app.register_blueprint(github_blueprint, url_prefix="/login")
+	app.register_blueprint(facebook_blueprint, url_prefix="/login")
+	app.register_blueprint(twitter_blueprint, url_prefix="/login")
+
+
+	return app

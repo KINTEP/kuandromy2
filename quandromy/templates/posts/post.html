@@ -1,0 +1,80 @@
+{% for post in posts %}
+      <div class="card mb-3" style="display: '';" id="posters">
+        <ul class="nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"></a>
+            <div class="dropdown-menu bg-info">
+              {% if not current_user == post.author %}
+              <div class="sharethis-inline-share-buttons"></div>
+              <a class="dropdown-item" href="{{url_for('users.unfollow', username = post.author.username)}}">Unfollow</a>
+              <a class="dropdown-item" href="{{url_for('users.block', username = post.author.username)}}">Block</a>
+              <a class="dropdown-item btn" href="{{url_for('users.report', id = post.id)}}" name = "report">Report</a>
+              {% endif %}
+
+              {% if current_user.is_following(post.author) %}
+              <a class="hide-element dropdown-item" href=""  style="display: '';" name="hidden" id="hide1">Hide</a>
+              <a class="dropdown-item" href="#">Embed</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Cancel</a>
+              {% endif %}
+
+              {% if not current_user.is_following(post.author) %}
+              <a class="dropdown-item" href="{{url_for('users.unfollow', username = post.author.username)}}">Follow</a>
+              {% endif %}
+              
+
+              
+      
+            </div>
+            </li>
+          </ul>
+          <div class="card-header">
+            <div class="content-section">
+              <div class="media">
+                <img class="rounded-circle account-img my-img" src="{{url_for('static', filename = 'img/' + post.author.image_file)}}" alt="profile pic">
+                
+                <div class="media-body">
+                                            
+                            <a href="{{url_for('users.account', username = post.author.username)}}"><h6 class="account-heading username ml-2" id="theauthor">{{post.author.username}}</h6></a>
+                        <!--
+                                  {% if post.author == current_user %}
+
+                        {% else %}
+
+                                                
+                            <a href="{{url_for('users.dashboard', username = post.author.username)}}"><h6 class="account-heading username ml-2">{{post.author.username}}</h6></a>
+                    {% endif %}
+                        -->
+                  <p class="card-text"><small class="text-muted">{{post.date_posted.strftime('%Y-%m-%d')}}</small></p>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <img src="{{url_for('static', filename = 'postpics/' + post.picture)}}" class="card-img-top" alt="..." width="50" height="400">
+
+          <div class="card-body">
+          	  <div class="fb-comments" data-href="https://developers.facebook.com/docs/plugins/comments#configurator" data-numposts="5" data-width="50%"></div>
+              <div class="card-footer text-muted">{{post.title}}</div>
+              
+              <div class="">
+              
+                    <a href="#" class="btn btn-warning mr-4"><i class="fas fa-heart"></i></a>
+                    <a href="#" class="btn btn-warning mr-4"><i class="fas fa-share-alt-square"></i></a>
+                    <a href="#" class="btn btn-warning mr-4" ><i class="fas fa-shopping-cart"></i></a>
+                    <div class="fb-share-button" data-href="{{ url_for('posts.share', post_id=post.id) }}" data-layout="button_count"></div>  
+                    <div class="fb-like" data-href="https://www.your-domain.com/your-page.html" data-layout="standard" 
+					    data-action="like" 
+					    data-show-faces="true">
+					  </div>
+                      <div class="fb-like" 
+    data-href="https://www.your-domain.com/your-page.html" 
+    data-layout="standard" 
+    data-action="like" 
+    data-show-faces="true">
+    </div>
+                      
+    </div>
+  </div>
+</div>
+{% endfor %}

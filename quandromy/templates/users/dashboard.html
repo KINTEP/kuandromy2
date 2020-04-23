@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block div %}
+
  <div class="content-section">
    <div class="media">
-     <img class="rounded-circle account-img my-img" src="{{user.image_file}}" alt="profile pic">
+     <img class="rounded-circle account-img my-img" src="{{url_for('static', filename = 'img/' + user.image_file)}}" alt="profile pic">
      <div class="media-body">
        <h2 class="account-heading">{{user.username}}</h2>
        <p class="text-secondary">{{user.email}}</p>

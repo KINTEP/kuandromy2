@@ -1,0 +1,250 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>Home</title>
+  <script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5e9aaed50ba0f9001938d4bc&product=inline-share-buttons" async="async"></script>
+
+<script type="text/javascript">
+  //Define all functions and variables that will be needed
+// Start with first post.
+let counter = 1;
+
+// Load posts 20 at a time.
+const quantity = 5;
+
+//When DOM Loads, render the first 20 posts
+//window.onload = load();
+//document.documentElement.scrollTop = 0;
+
+window.onload = function () {
+    //document.documentElement.scrollTop = 0;
+    load();
+};
+
+
+//document.addEventListener('DOMContentLoaded', load);
+
+//What happens when the window is scrolled
+ window.onscroll = () => {
+
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+         load();
+
+         };
+     };
+
+//The function that makes the request and loads the page
+function load(){
+
+  const start = counter;
+    const end = start + quantity - 1;
+    counter = end + 1;
+
+  let request = new XMLHttpRequest();
+    request.open("POST", "/load", true);
+  request.onload = function(){
+    response = request.responseText;
+    data1 = JSON.parse(response);
+
+
+        console.log(data1);
+
+        //add_post(data1);
+
+        //data1.forEach(add_post);
+        for (var i = 0; i <= data1.length + 1; i++) {
+            if (data1[i] == undefined) {
+                continue;
+                //
+            };
+            console.log(i);
+            //add_post(data1[i]["picture"]);
+            //Query select all the elements and make changes
+            document.querySelector('#profile1');
+            document.querySelectorAll('.account-heading')[i].innerHTML = data1[i].Author;
+            //document.querySelector('#author2').innerHTML = data1[i].Author;
+            document.querySelector('#date1').innerHTML = data1[i].date_posted;
+            document.querySelectorAll('.card-img-top')[i].src = data1[i].picture;
+            document.querySelector('#posttitle').innerHTML = data1[i].title;
+
+
+          
+
+            //Creating the image section
+            /*
+            img = document.createElement('img');
+            img.className = "card-img-top";
+            img.src = data1[i].picture;
+            div1.append(img);
+            */
+          };
+
+/*
+        var x;
+        for (x in data1) {
+            add_post(data1[x])
+            };
+            */
+
+    /* data1.forEach(add_post);
+        for (var i = 0; i <= data1.length + 1; i++) {
+            if (data1[i] == undefined) {
+                continue;
+            };
+            add_post(data1[i]);
+        };
+  };*/
+    
+    }; 
+    const data = new FormData();
+    data.append('start', start);
+    data.append('end', end);
+  request.send(data);
+    //xhttp.send("start=${start}&end={Ford}");
+
+};
+
+function add_post(contents) {
+  // Create new post.
+    const post = document.createElement('img');
+    post.className = 'post';
+     post.innerHTML = contents;
+
+     // Add post to DOM.
+    document.querySelector('#posts').append(post);
+     };
+
+function displayImage(element){
+  element.src = "hi";
+}
+
+</script>
+{% endblock %}
+{% block div %}
+   
+<div class="row">
+    <div class="col-2">
+      <legend class="text-info text-center bg-dark">Stories</legend>
+      <h4 class="text-info text-center bg-dark">Suggestions for you</h4>
+      <h4 class="text-info text-center bg-dark">Trending</h4>
+      <hr>
+      <div class="footer1">
+          <section>
+              <ul class="list-group list-group-horizontal-xm">
+                    <a href=""><li class="list-group-item">API</li></a>
+                    <a href="#"><li class="list-group-item">Privacy</li></a>
+                    <a href="#"><li class="list-group-item">Terms</li></a>
+                    <a href="#"><li class="list-group-item">More</li></a>
+              </ul>
+          </section>
+      </div>
+    </div>
+    <div class="col-6">
+      {% for post in posts %}
+      <div class="card mb-3" style="display: '';" id="posters">
+        <ul class="nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"></a>
+            <div class="dropdown-menu bg-info">
+              {% if current_user.is_following(post.author) %}
+              <div class="sharethis-inline-share-buttons"></div>
+              <a class="dropdown-item btn" href="" name = "report">Report</a>
+              <a class="dropdown-item" href="">Unfollow</a>
+              <a class="dropdown-item" href="">Block</a>
+              <a class="hide-element dropdown-item" href=""  style="display: '';" name="hidden" id="hide1">Hide</a>
+              <a class="dropdown-item" href="#">Embed</a>
+              
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Cancel</a>
+              {% elif not current_user.is_following(post.author) %}
+              <a class="dropdown-item" href="#">Report</a>
+              <a class="dropdown-item" href="">Block</a>
+              <a class="hide-element dropdown-item" href="" style="display: ">Hide</a>
+              <a class="dropdown-item" href="#">Embed</a>
+              <a href="">Message</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Edit</a>
+              <a class="dropdown-item" href="#">Cancel</a>
+              {% endif %}
+            </div>
+            </li>
+          </ul>
+          <div class="card-header">
+            <div class="content-section">
+              <div class="media">
+                <img class="rounded-circle account-img my-img" id="profile1" src="" alt="profile pic">
+                
+                <div class="media-body">
+                    {% if post.author == current_user %}
+                    <a href=""><h6 class="account-heading username ml-2" id="author1"></h6></a>
+                    {% else %}
+                    <a href=""><h6 class="account-heading username ml-2" id="author2"></h6></a>
+                    {% endif %}
+                  
+                  <p class="card-text"><small class="text-muted" id="date1"></small></p>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <img src="" id="postpic" class="card-img-top" alt="postpic" width="50" height="400">
+
+          <div class="card-body">
+
+              <div class="card-footer text-muted" id="posttitle"></div>
+
+              <div class="row">
+              </div>
+                    <a href="#" class="btn btn-warning mr-4"><i class="fas fa-heart"></i></a>
+                    <a href="#" class="btn btn-warning mr-4"><i class="fas fa-share-alt-square"></i></a>
+                    <a href="#" class="btn btn-warning mr-4" ><i class="fas fa-shopping-cart"></i></a>
+                    <small>
+                        <div class="col-6">
+                            <form action="" method="POST">
+                              <input type="text" name="comment" id="comment" placeholder="Your opinion">
+                              <button type="submit" id="commentB">Post</button>
+                            </form>
+                          </div>
+                    </small>
+                
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col">
+      <h3 class="text-white text-center bg-primary" style="width: 200px; margin-right:10%; margin-left: 50%;">People You May Follow</h3>
+      <div class="" style="overflow: scroll; background-color: red; height: 300px; width: 200px; margin-right:10%; margin-left: 50%;">
+
+        {% for user in Users if user != current_user and not current_user.is_following(user) %}
+        <div id = 'list-example' class="">
+        <ul class="list-group list-group-horizontal-xm">
+          <li class="list-group-item">
+            <img src="" class="rounded-circle account-img my-img img1" alt="profile"></img>
+            <a class="ml-2 mr-2" href="" style="font-size: 10px;">user.fullname</a>
+            <div class="">
+              <a href="" class="">Follow</a>
+            </div>
+          </li>      
+    </ul>
+
+        </div>
+            
+        {% endfor %}
+      </div>
+                <div style="border: 2px solid; height: 200px; width: 250px; background: black; margin-top: 10%; margin-left: 40%;">
+            <h3 style="width: 50%; text-align: center;" class="text-warning text-center">COMMUNITIES</h3>
+            <ul>
+              <li class="text-primary">Topic 1</li>
+              <li class="text-primary">Topic 2</li>
+              <li class="text-primary">Topic 3</li>
+              <li class="text-primary">Topic 4</li>
+            </ul>
+          </div>
+    </div>
+</div>
+
+           
+{% endblock %}
+
+  
+

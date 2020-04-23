@@ -1,15 +1,18 @@
-from flask import  render_template, url_for, redirect, flash, request, abort, g
+from flask import  render_template, url_for, redirect, flash, request, abort, g, make_response
 from flask_login import login_user, current_user, logout_user, login_required
 from quandromy.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm, 
-                RequestResetPassword, ResetPasswordForm, MessageForm)
+                RequestResetForm, ResetPasswordForm, MessageForm)
 from quandromy.main.forms import SearchForm
 from quandromy import bcrypt, db,login_manager
 from quandromy.database import User, Follow, Post, Permission, Message, Report
-from quandromy.users.utils import save_picture, save_picture2, send_password_reset_email
-from . import users
+from quandromy.users.utils import save_picture, save_picture2, send_password_reset_email, send_reset_email
 from ..decorators import admin_required, permission_required
 from datetime import datetime
 from werkzeug.security import generate_password_hash
+from flask import Blueprint
+
+users = Blueprint("users", __name__)
+
 
 """
 @users.before_app_request
@@ -63,12 +66,17 @@ def login():
         user = User.query.filter_by(email = form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
-            return redirect(next) if next_page else redirect(url_for('main.index'))
+            #next_page = request.args.get('next') #This has something to do with 'next' parameter as it appears in the url
+            #return redirect(next) if next_page else redirect(url_for('main.index'))
+            return redirect(url_for('main.index'))
         else:
             flash("Login unsuccessful, please try again", 'danger')
     return render_template("users/login.html", form = form)
 
+
+@users.route('/fblogin', methods=['GET', 'POST'])
+def gblogin():
+    return render_template("users/fblogin.html")
 
 @users.route("/dashboard/<string:username>")
 def dashboard(username):
@@ -98,6 +106,7 @@ def update():
     if form.validate_on_submit():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data
         current_user.about_me = form.about_me.data
@@ -152,7 +161,7 @@ def follow(username):
         return redirect(url_for('.index'))
     if current_user.is_following(user):
         flash('You are already following this user.')
-        return redirect(url_for('main.index', username=username))
+        #return redirect(url_for('main.index', username=username))
     current_user.follow(user)
     db.session.commit()
     flash('You are now following %s.' % username)
@@ -168,7 +177,7 @@ def unfollow(username):
         return redirect(url_for('.index'))
     if not current_user.is_following(user):
         flash('You are not following this user.')
-        return redirect(url_for('.user', username=username))
+        #return redirect(url_for('.user', username=username))
     current_user.unfollow(user)
     db.session.commit()
     flash(f'You unfollowed {username}')
@@ -199,6 +208,7 @@ def messages():
         Message.timestamp.desc())
     return render_template('users/messages.html', messages_rec=messages_rec, messages_sent = messages_sent)
 
+"""
 @users.route("/reset_password_token", methods = ["GET", "POST"])
 def reset_password_token():
     if current_user.is_authenticated:
@@ -212,6 +222,9 @@ def reset_password_token():
         return redirect(url_for("users.login"))
     return render_template('users/reset_request.html', form = form)
 
+"""
+
+"""
 @users.route("/reset_token/<token>", methods = ["GET", "POST"])
 def reset_token(token):
     if current_user.is_authenticated:
@@ -228,7 +241,37 @@ def reset_token(token):
         flash('Your password has been updated, you are now able to log in', 'success')
         return redirect(url_for('users.login'))
     return render_template('users/reset_token.html', form = form)
+"""
 
+@users.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('An email has been sent with instructions to reset your password.', 'info')
+        return redirect(url_for('users.login'))
+    return render_template('users/reset_request.html', title='Reset Password', form=form)
+
+
+@users.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token', 'warning')
+        return redirect(url_for('users.reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Your password has been updated! You are now able to log in', 'success')
+        return redirect(url_for('users.login'))
+    return render_template('users/reset_token.html', title='Reset Password', form=form)
 
 @users.route('/block/<username>')
 @login_required
@@ -258,5 +301,48 @@ def report(id):
         flash("Your report has been submited", "success")
         return redirect("main.index")
     return render_template("users/report.html", id = post.id, post = post)
+
+
+@users.route('/setCookies')
+def setCookies():
+    reponse = make_response('Setting cookies')
+    reponse.set_cookie(key ='info', 
+                        value = 'Quantrix',
+                        max_age = 10,
+                        expires = None,
+                        path = request.path,
+                        domain = None,
+                        secure = False,
+                        httponly = False,
+                        samesite = None)
+    return reponse
+
+
+@users.route('/getCookies')
+def getCookies():
+    info = request.cookies.get('info')
+    print(info)
+    return "Hey Cokies GET " + info
+
+@users.route('/user/<username>/popup')
+@login_required
+def user_popup(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    return render_template('users/user_popup.html', user=user)
+
+@users.route('/sendpost')
+@login_required
+def sendpost():
+    username = request.args.get('url')
+    user = User.query.filter_by(username=username).first_or_404()
+    response = make_response({'template': 'user/user_popup.html', 'user': user})
+    return response
+
+
+
+
+
+
+
 
 

@@ -1,14 +1,20 @@
 #Creating the database
 from datetime import datetime
+from quandromy import create_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from quandromy import db, login_manager, app
+from quandromy import db, login_manager
 from hashlib import md5
 from time import time
-#from quandromy import app
-from flask import current_app
+from flask_login import current_user
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
+from flask import current_app, url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
+##from quandromy.github import github_blueprint
+
+
+#app = create_app()
 
 class Permission:
     FOLLOW = 1
@@ -81,18 +87,17 @@ class Follow(db.Model):
 class User(db.Model, UserMixin): #The users mixing class helps in user management. We inherit the "is_authenticated" method from here
     """docstring for ."""
     __tablename__ = 'users'
-    __searchable__ = ['fullname', 'username']
     id = db.Column(db.Integer, primary_key = True)
-    fullname = db.Column(db.String(100), nullable = False)
-    username = db.Column(db.String(20), unique = True, nullable = False, index = True)
+    fullname = db.Column(db.String(100))
+    username = db.Column(db.String(20), unique = True, index = True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    email = db.Column(db.String(120), unique = True, nullable = False, index = True)
+    email = db.Column(db.String(120), unique = True, index = True)
     country = db.Column(db.String(200))
     #name = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
-    image_file = db.Column(db.String(20), nullable = False, default = 'default.png')
+    image_file = db.Column(db.String(20), default = 'default.png')
     last_message_read_time = db.Column(db.DateTime)
     password = db.Column(db.String(60), nullable = False)
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
@@ -175,6 +180,19 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     def is_administrator(self):
         return self.can(Permission.ADMIN)
 
+    def get_reset_token(self, expires_sec=1800):
+        s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
+        return s.dumps({'user_id': self.id}).decode('utf-8')
+
+    @staticmethod
+    def verify_reset_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
+
     def ping(self):
         """
         The last_seen field is also initialized to the current time upon creation, but it needs
@@ -193,13 +211,13 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            app.config['SECRET_KEY'],
+            current_app.config['SECRET_KEY'],
             algorithm='HS256').decode('utf-8')
 
     staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
         except:
             return
@@ -237,6 +255,11 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     def __repr__(self):
         return f'User: {self.username}'
 
+class OAuth(OAuthConsumerMixin, db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+    user = db.relationship(User)
+
+
 class AnonymousUser(AnonymousUserMixin):
     """
 For added convenience, a custom AnonymousUser class that implements the can()
@@ -248,6 +271,7 @@ setting its class in the login_manager.anonymous_user attribute.
 """
     def can(self, permissions):
         return False
+
     def is_administrator(self):
         return False
 
@@ -256,6 +280,8 @@ login_manager.anonymous_user = AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
 
 class Post(db.Model):
     """docstring forProducts."""
@@ -273,6 +299,18 @@ class Post(db.Model):
     def __repr__(self):
         return f'''{[self.date_posted, self.title]}
                  '''
+    
+    def to_json(self):
+        json_user = {'id': self.id,
+        'Author': self.author.fullname,
+        'title': self.title,
+        'date_posted': self.date_posted,
+        'picture': url_for('static', filename = 'postpics/' + self.picture),
+        'describe': self.describe}
+        return json_user
+
+#This import is here to prevent circular import errors
+#from quandromy import RestApi
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -311,7 +349,9 @@ class Report(db.Model):
     def __repr__(self):
         return f'''{self.timestamp, self.body}
                  '''
-db.create_all()
+
+#db.create_all()
+
 
 
 

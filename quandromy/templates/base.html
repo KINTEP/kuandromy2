@@ -4,16 +4,24 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <!--<meta http-equiv="refresh" content="5; url=http://localhost:5000/account">
+-->
+    
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/35d2d0e30e.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename = 'css/main.css')}}">
+    <link rel="shortcut icon" type="" href="{{url_for('static', filename = 'img/nice.jpg')}}">
+    <style type="text/css">
+        #main-bar {
+          border: 2px solid black;
+        }
+    </style>
       {% block head %}{% endblock %}
   </head>
 
   {% if current_user.is_authenticated %}
-  <nav class="container sticky-top navbar navbar-expand-lg navbar-dark bg-dark mb-2 mt-2">
+  <nav class="navbar navbar-expand-lg navbar-dark mb-2 mt-2" id="main-bar">
     <a class="navbar-brand text-warning" href="{{url_for('main.index')}}" >Quantrix</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -24,10 +32,10 @@
     
       
         <li class="nav-item">
-          <a class="nav-link" href="#">Notifications</a>
+          <a class="nav-link text-secondary" href="#">Notifications</a>
         </li>
         <li class="nav-item">
-          <a href="{{ url_for('users.messages') }}">
+          <a href="{{ url_for('users.messages') }}" class="text-danger">
             Messages
             {% set new_messages = current_user.new_messages() %}
             {% if new_messages %}
@@ -37,13 +45,13 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="{{url_for('users.account')}}">Account</a>
+          <a class="nav-link text-info" href="{{url_for('users.account')}}">Account</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{url_for('users.logout')}}">Logout</a>
+          <a class="nav-link text-info" href="{{url_for('users.logout')}}">Logout</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{url_for('posts.new_post')}}">New Post</a>
+          <a class="nav-link text-info" href="{{url_for('posts.new_post')}}">New Post</a>
         </li>
         <li class="nav-item">
           <img class="rounded-circle account-img my-img mr-sm-2" src="{{url_for('static', filename = 'img/' + current_user.image_file)}}" alt="profile pic">
@@ -68,12 +76,58 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
-    {% block div %}{% endblock %}
+    {% block div %}
 
+    {% endblock %}
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+  
+        $(function () {
+            var timer = null;
+            var xhr = null;
+            $('.user_popup').hover(
+                function(event) {
+                    // mouse in event handler
+                    var elem = $(event.currentTarget);
+                    timer = setTimeout(function() {
+                        timer = null;
+                        xhr = $.ajax(
+                            '/user/' + elem.first().text().trim() + '/popup').done(
+                                function(data) {
+                                    xhr = null;
+                                    elem.popover({
+                                        trigger: 'manual',
+                                        html: true,
+                                        animation: false,
+                                        container: elem,
+                                        content: data
+                                    }).popover('show');
+                                    flask_moment_render_all();
+                                }
+                            );
+                    }, 1000);
+                },
+                function(event) {
+                    // mouse out event handler
+                    var elem = $(event.currentTarget);
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
+                    else if (xhr) {
+                        xhr.abort();
+                        xhr = null;
+                    }
+                    else {
+                        elem.popover('destroy');
+                    }
+                }
+            );
+        });
+    </script>
   </body>
 </html>

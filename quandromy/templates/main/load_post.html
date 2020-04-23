@@ -1,0 +1,241 @@
+{% extends 'base.html'%}
+{% block head %}
+   <style>
+     .card-group {
+        padding-right: 30%;
+        padding-left: 30%;
+        padding-bottom: 3%;
+                    }
+    .header{
+      
+    }
+
+    body {
+        padding-bottom: 50px;
+        
+            }
+      h1 {
+        background: red;
+        padding-right: 30%;
+        padding-left: 30%;
+        height: 50px;
+        text-align: center;
+      }
+
+
+     </style>
+  <title>About</title>
+{% endblock %}
+{% block div %}
+<script type="text/javascript">
+  //Define all functions and variables that will be needed
+// Start with first post.
+let counter = 1;
+
+// Load posts 20 at a time.
+const quantity = 5;
+
+//When DOM Loads, render the first 20 posts
+//window.onload = load();
+//document.documentElement.scrollTop = 0;
+
+window.onload = function () {
+    //document.documentElement.scrollTop = 0;
+    load();
+};
+
+
+//document.addEventListener('DOMContentLoaded', load);
+
+//What happens when the window is scrolled
+ window.onscroll = () => {
+
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+         load();
+
+         };
+     };
+
+//The function that makes the request and loads the page
+function load(){
+
+  const start = counter;
+    const end = start + quantity - 1;
+    counter = end + 1;
+
+  let request = new XMLHttpRequest();
+    request.open("POST", "/load", true);
+  request.onload = function(){
+    response = request.responseText;
+    data1 = JSON.parse(response);
+
+
+        console.log(data1);
+
+        //add_post(data1);
+
+        //data1.forEach(add_post);
+        for (var i = 0; i <= data1.length + 1; i++) {
+            if (data1[i] == undefined) {
+                continue;
+            };
+            //add_post(data1[i]["picture"]);
+            row = document.createElement('div')
+            row.className = "col"
+            document.querySelector("#row1").append(row)
+
+            basediv = document.createElement('div')
+            basediv.className = "card-group"
+            document.querySelector('body').append(basediv)
+
+            div1 = document.createElement('div');
+            div1.className = "card";
+            div1.id = "div1";
+            div1.innerHTML = "First Div";
+            basediv.append(div1);
+
+            //Creating the nav items inside the post
+            ul = document.createElement('ul');
+            ul.className = "nav";
+            div1.append(ul);
+
+            li = document.createElement('li');
+            li.className = "nav-item dropdown";
+            ul.append(li);
+
+            a1 = document.createElement('a');
+            a1.className = "nav-link dropdown-toggle";
+            //a1.data-toggle="dropdown"
+            a1.role="button";
+            //a1.aria-haspopup="true";
+            //a1.aria-expanded="false";
+            li.append(a1);
+
+            navDiv1 = document.createElement('div');
+            navDiv1.className = "dropdown-menu bg-info";
+            li.append(navDiv1);
+
+            navDiv2 = document.createElement('div');
+            navDiv2.className = "sharethis-inline-share-buttons";
+            navDiv1.append(navDiv2);
+
+            a2 = document.createElement('a');
+            a2.className = "dropdown-item btn";
+            a2.innerHTML = "Report";
+            navDiv1.append(a2);
+
+            a3 = document.createElement('a');
+            a3.className = "dropdown-item";
+            a3.innerHTML = "Unfollow";
+            navDiv1.append(a3);
+
+            a4 = document.createElement('a');
+            a4.className = "dropdown-item";
+            a4.innerHTML = "Block";
+            navDiv1.append(a4);
+
+            a5 = document.createElement('a');
+            a5.className = "dropdown-item";
+            a5.innerHTML = "Hide";
+            navDiv1.append(a5);
+
+            a6 = document.createElement('a');
+            a6.className = "dropdown-item";
+            a6.innerHTML = "Embed";
+            navDiv1.append(a6);
+
+            div3 = document.createElement('a');
+            div3.className = "dropdown-divider";
+            navDiv1.append(div3);
+
+            a7 = document.createElement('a');
+            a7.className = "dropdown-item";
+            a7.innerHTML = "Edit";
+            navDiv1.append(a7);
+
+            a8 = document.createElement('a');
+            a8.className = "dropdown-item";
+            a8.innerHTML = "Cancel";
+            navDiv1.append(a8);
+          
+
+            //Creating the image section
+            img = document.createElement('img');
+            img.className = "card-img-top";
+            img.src = data1[i].picture;
+            div1.append(img);
+
+            //Create another div for card-body
+            div2 = document.createElement("div");
+            div2.className = "card-body";
+            div2.id = "card-body";
+            div1.append(div2);
+
+            //Create two moer children for div2 as p and h5
+            h5 = document.createElement('h5');
+            h5.className = "card-title";
+            h5.innerHTML = "Card Title";
+            div2.append(h5);
+
+            p = document.createElement('p');
+            p.className = "card-text";
+            p.innerHTML = "This portion contains all the text and news or description of the image above";
+            div2.append(p);
+
+            //Create the card footer
+            footer = document.createElement("div");
+            footer.className = "card-footer";
+            footer.id = "footer"
+            div1.append(footer);
+
+            //Create a small section that contains the footer
+            small = document.createElement('small');
+            small.className = "text-muted";
+            small.innerHTML = "Last updated 3 mins ago";
+            footer.append(small);
+          };
+
+/*
+        var x;
+        for (x in data1) {
+            add_post(data1[x])
+            };
+            */
+
+    /* data1.forEach(add_post);
+        for (var i = 0; i <= data1.length + 1; i++) {
+            if (data1[i] == undefined) {
+                continue;
+            };
+            add_post(data1[i]);
+        };
+  };*/
+    
+    }; 
+    const data = new FormData();
+    data.append('start', start);
+    data.append('end', end);
+  request.send(data);
+    //xhttp.send("start=${start}&end={Ford}");
+
+};
+
+function add_post(contents) {
+  // Create new post.
+    const post = document.createElement('img');
+    post.className = 'post';
+     post.innerHTML = contents;
+
+     // Add post to DOM.
+    document.querySelector('#posts').append(post);
+     };
+
+</script>
+  <h1><span class="header">This is about page<span></h1>
+    <div id="row1" class="row">
+        <div class="col">Here Am I</div>
+        <div class="col">We are Here</div>
+    </div>
+
+
+{% endblock %}

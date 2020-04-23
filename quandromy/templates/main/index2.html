@@ -1,0 +1,148 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>Home Page</title>
+  {% for post in posts %}
+<!-- This is to enhance Facebook plugins -->
+  <meta property="og:url"           content="http://www.your-domain.com/your-page.html" />
+  <meta property="og:type"          content="website" />
+  <meta property="og:title"         content="Your Website Title" />
+  <meta property="og:description"   content="Your description" />
+  <meta property="og:image"         content="{{url_for('posts.share', post_id = post.id)}}" />
+  
+  <script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5e9aaed50ba0f9001938d4bc&product=inline-share-buttons" async="async"></script>
+  <script type="text/javascript">
+  
+Users = document.querySelectorAll(".account-heading");
+Users.forEach (function (link) {
+      link.click = load();
+    });
+
+
+
+ function load(){
+
+  let request = new XMLHttpRequest();
+    request.open("GET", "/sendpost", true);
+  request.onload = function(){
+    response = request.responseText;
+    Data = JSON.parse(response);
+    user = Data[user];
+    PopOver(user);
+
+
+    var X = document.querySelectorAll(".account-heading");
+
+    var  Y = Ten(X);
+
+    for (x = 0; x < Y.length; x++){
+      request.send(`url=${Y[x]}`);
+      //return false;
+    }; 
+
+   } 
+};
+
+function Ten (elems) {
+    Data = [];
+    for (i=0; i< elems.length; i++){
+        Data.push(elems[i].innerHTML);}
+    return Data;
+  };
+
+    function PopOver (data) {
+  elem.popover({
+      trigger: 'manual',
+      html: true,
+      animation: false,
+      container: elem,
+      content: data
+  }).popover('show');
+
+  };
+  
+  </script>
+
+{% endfor %}
+{% endblock %}
+{% block div %}
+  <!-- Load Facebook SDK for JavaScript -->
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+
+<div id="fb-root"></div>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0"></script>
+{% if current_user.is_authenticated %}
+  <div class="row">
+
+<!--The left section of the body-->
+  		<div class="col-3">
+      		<legend class="text-info text-center bg-dark">Stories</legend>
+      		<h4 class="text-info text-center bg-dark">Suggestions for you</h4>
+      		<h4 class="text-info text-center bg-dark">Trending</h4>
+      		<hr>
+      		<div class="footer1">
+          	<section>
+              <ul class="list-group list-group-horizontal-xm">
+                    <a href="{{url_for('main.api_page')}}"><li class="list-group-item">API</li></a>
+                    <a href="#"><li class="list-group-item">Privacy</li></a>
+                    <a href="#"><li class="list-group-item">Terms</li></a>
+                    <a href="#"><li class="list-group-item">More</li></a>
+                    
+              </ul>
+         	 </section>
+    		</div>
+  		</div>
+
+<!--The main section of the body-->
+  	<div class="col-6">
+      <!--Include Post Here-->
+      {% include 'posts/post.html' %}
+  	</div>
+
+
+  	<div class="col-3">
+  			<h3 class="text-white text-center bg-primary" style="width: 200px; margin-right:10%; margin-left: 50%;">People You May Follow</h3>
+  			<div class="" style="overflow: scroll; background-color: red; height: 300px; width: 200px; margin-right:10%; margin-left: 50%;">
+
+        	{% for user in Users if user != current_user and not current_user.is_following(user) %}
+        	<div id = 'list-example' class="">
+        		<ul class="list-group list-group-horizontal-xm">
+          			<li class="list-group-item">
+            			<img src="{{url_for('static', filename = 'img/' + user.image_file)}}" class="rounded-circle account-img my-img img1">
+            			<a class="ml-2 mr-2" href="{{url_for('users.dashboard', username = user.username)}}" style="font-size: 10px;">{{user.fullname}}</a>
+            			<div class="">
+              				<a href="{{url_for('users.follow', username=user.username)}}" class="">Follow</a>
+            			</div>
+          			</li>      
+       		 	</ul>
+    		</div>
+            
+        {% endfor %}
+      </div>
+
+		<div style="border: 2px solid; height: 200px; width: 250px; background: black; margin-top: 10%; margin-left: 40%;">
+            <h3 style="width: 50%; text-align: center;" class="text-warning text-center">COMMUNITIES</h3>
+            <ul>
+              	<li class="text-primary">Topic 1</li>
+              	<li class="text-primary">Topic 2</li>
+              	<li class="text-primary">Topic 3</li>
+              	<li class="text-primary">Topic 4</li>
+            </ul>
+            <button id = "buttocks" onmouseover="Click()">Button</button>
+          </div>
+
+  	</div>
+  		
+
+{% endif %}
+
+</div>
+{% endblock %}
+
