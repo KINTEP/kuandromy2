@@ -103,7 +103,9 @@ function Ten (elems) {
 <!--The main section of the body-->
   	<div class="col-6">
       <!--Include Post Here-->
-      {% include 'posts/post.html' %}
+      {% for post in posts %}
+        {% include 'posts/post.html' %}
+      {% endfor %}
   	</div>
 
 
@@ -116,7 +118,11 @@ function Ten (elems) {
         		<ul class="list-group list-group-horizontal-xm">
           			<li class="list-group-item">
             			<img src="{{url_for('static', filename = 'img/' + user.image_file)}}" class="rounded-circle account-img my-img img1">
-            			<a class="ml-2 mr-2" href="{{url_for('users.dashboard', username = user.username)}}" style="font-size: 10px;">{{user.fullname}}</a>
+                  <span class="user_popup">
+                      <a class="ml-2 mr-2" href="{{url_for('users.dashboard', username = user.username)}}" style="font-size: 10px;">{{user.username}}
+                  </a>
+                  </span>
+            			
             			<div class="">
               				<a href="{{url_for('users.follow', username=user.username)}}" class="">Follow</a>
             			</div>
@@ -135,9 +141,7 @@ function Ten (elems) {
               	<li class="text-primary">Topic 3</li>
               	<li class="text-primary">Topic 4</li>
             </ul>
-            <button id = "buttocks" onmouseover="Click()">Button</button>
           </div>
-
   	</div>
   		
 

@@ -67,8 +67,6 @@ def comment(postid):
 """
 
 
-
-
 @main.route('/home5')
 def home5():
     return render_template('main/home5.html')
@@ -81,17 +79,16 @@ def data():
     return jsonify({'posts': AllData})
 
 
-@main.route('/comment/<int:postID>', methods = ['GET', 'POST'])
-def comment(postID):
-    form3 = CommentForm()
-    post = Post.query.get_or_404(postID)
-    comments = Comment.query.filter_by(post = postID)
-    if form3.validate_on_submit():
-        comment = Comment(body = form3.comment.data, author = current_user.username, post = post.id)
+@main.route('/comment', methods = ['GET', 'POST'])
+def comment():
+    if request.method == "POST":
+        body = request.form.get("comment")
+        postid = int(request.form.get(id))
+        post = Post.query.get_or_404(postid)
+        comment = Comment(body = body, author = current_user.username, post = postid)
         db.session.add(comment)
         db.session.commit()
-    return render_template('main/comment.html', form3 = form3, 
-                postID = post.id, comments = comments, post = post)
+        flash("Your comment has been noticed")
 
 @main.route('/search', methods=['POST'])
 def search():
