@@ -338,7 +338,7 @@ class Search(db.Model):
 class Post(SearchableMixin, db.Model):
     """docstring forProducts."""
     __tablename__ = 'posts'
-    __searchable__ = ['describe']
+    __searchable__ = ['describe', 'title']
     id = db.Column(db.Integer, primary_key = True)
     date_posted = db.Column(db.DateTime, nullable = False, default = datetime.utcnow())
     title = db.Column(db.String(50), nullable = False, index = True)

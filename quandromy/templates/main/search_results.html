@@ -1,10 +1,15 @@
+{% extends 'base.html'%}
+{% block head %}
+  <title>About</title>
+{% endblock %}
+{% block div %}
 
-{% extends "base.html" %}
-
-{% block app_content %}
+<div class="row">
+  <div class="col-4"></div>
+<div class="col-4">
     <h1>{{ ('Search Results') }}</h1>
     {% for post in posts %}
-        {% include 'post.html' %}
+        {% include 'posts/post.html' %}
     {% endfor %}
     <nav aria-label="...">
         <ul class="pager">
@@ -20,4 +25,10 @@
             </li>
         </ul>
     </nav>
+</div>
+<div class="col-4"></div>
+</div>
+
 {% endblock %}
+
+
