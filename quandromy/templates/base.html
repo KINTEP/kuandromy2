@@ -58,10 +58,14 @@
         </li>
   </ul>
 
-  <form style="display: inline;" action="{{ url_for('main.search') }}" method="post" name="search" placeholder="search" autocomplete="on">
-        {{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20) }}
-        <input type="submit" value="Search">
-  </form>
+{% if g.search_form %}
+<form class="navbar-form navbar-left" method="get" action="{{ url_for('main.search') }}">
+      <div class="form-group">
+            {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
+      </div>
+</form>
+{% endif %}
+
 </div>
 </nav>
 {% endif %}
@@ -141,9 +145,59 @@ $(document).ready(function(){
     $.post("comment",
     {
       id: elem.first().text().trim(),
+    }, function(data, status)
+    {
+      console.log(status);
+      return false;
     });
   });
 });
 </script>
+ <script type="text/javascript">
+    window.onload = function () {
+      console.log("Hi Isaac Newton");
+      //postID = document.querySelectorAll(".postID");
+      form = document.querySelectorAll(".cForm");
+
+      //console.log(form);
+
+      //Whats the relationship between button and ids
+
+      form.forEach(function(button){
+            button.onsubmit = function() {
+              request = new XMLHttpRequest();
+              request.open("POST", "/comment");
+              //alert("form submitted " + this.name + " " + this.firstElementChild.value);
+
+              const data = new FormData();
+              data.append('formdata', this.firstElementChild.value);
+              data.append('postID', this.name);
+
+      //Send request
+              request.send(data);
+              this.firstElementChild.value = "";
+              console.log("Successfull")
+              return false;
+            }
+          })
+        }
+        /*
+        //Make a ajax request by sending the details to the comment route
+
+        request = new XMLHttpRequest();
+        //formdata = document.querySelector('.inputValue').value;
+        request.open("POST", "/comment");
+
+      const data = new FormData();
+      data.append('formdata', this.firstElementChild.value);
+      data.append('postID', this.name);
+
+      //Send request
+      request.send(data);
+      return false;
+      }
+    }
+    */
+  </script>
   </body>
 </html>

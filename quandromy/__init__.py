@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from . Config import Config
 from flask import g
 from flask_moment import Moment
+from elasticsearch import Elasticsearch
 
 
 
@@ -24,6 +25,8 @@ migrate = Migrate(db)
 def create_app(config_class = Config):
 	app = Flask(__name__)
 	app.config.from_object(Config)
+	app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+    if app.config['ELASTICSEARCH_URL'] else None
 
 	with app.app_context():
 		db.init_app(app)
@@ -32,7 +35,6 @@ def create_app(config_class = Config):
 		mail.init_app(app)
 		migrate.init_app(app)
 		moment.init_app(app)
-
 	
 	#from quandromy.database import User, Post, Comment, Message, Follow
 
@@ -56,3 +58,4 @@ def create_app(config_class = Config):
 
 
 	return app
+

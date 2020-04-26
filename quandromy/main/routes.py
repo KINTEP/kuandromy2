@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, session, flash, g, jsonify, make_response
 from flask_login import current_user
-from quandromy.database import Post, User, Comment
+from quandromy.database import Post, User, Comment, Search
 from quandromy.users.forms import LoginForm, CommentForm
 from quandromy.main.forms import SearchForm
 from flask_login import login_required
@@ -9,6 +9,7 @@ from flask_login import login_user
 from quandromy import db
 from datetime import datetime
 from flask import Blueprint
+from flask import current_app
 
 
 main = Blueprint("main", __name__)
@@ -21,6 +22,7 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
         g.search_form = SearchForm()
+    #g.locale = str(get_locale())
 
 
 
@@ -56,7 +58,8 @@ def index():
     Users = User.query.all()
     #posts = Post.query.order_by(Post.date_posted.desc()).all()
     posts = current_user.followed_posts.all()
-    return render_template('main/index2.html', posts = posts, Users= Users)
+    comments = Comment.query.all()
+    return render_template('main/index2.html', posts = posts, Users= Users, comments = comments)
 """
 @main.route('/comment/<int:postid>')
 #@login_required
@@ -81,21 +84,49 @@ def data():
 
 @main.route('/comment', methods = ['GET', 'POST'])
 def comment():
-    if request.method == "POST":
-        body = request.form.get("comment")
-        postid = int(request.form.get(id))
+    body = request.form.get("formdata").strip()
+    postid =int(request.form.get("postID"))
+
+    ##comments = Comment.query.all()
+
+    if body and postid:
         post = Post.query.get_or_404(postid)
-        comment = Comment(body = body, author = current_user.username, post = postid)
+        print(current_user)
+        print(post)
+        comment = Comment(body = body, author = current_user._get_current_object(), post = post)
         db.session.add(comment)
         db.session.commit()
         flash("Your comment has been noticed")
+    else:
+        return "No data was received"
+    return render_template("main/_comments.html")
 
-@main.route('/search', methods=['POST'])
+@main.route('/allcomments/<int:postid>')
+def allcomments(postid):
+    comments = Comment.query.filter_by(post = postid).all()
+    return render_template("main/_allcomments.html", comments = comments)
+
+
+
+@main.route('/search')
+@login_required
 def search():
-    if not g.search_form.validate_on_submit():
+    if not g.search_form.validate():
+        key_words = search_form.q.data
+        search = Search(key_words = key_words, searcher = current_user)
+        db.session.add(search)
+        db.session.commit()
         return redirect(url_for('main.index'))
-    return redirect(url_for('main.search_results', query=g.search_form.search.data))
-
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(g.search_form.q.data, page,
+                               current_app.config['POSTS_PER_PAGE'])
+    next_url = url_for('main.search', q=g.search_form.q.data, page=page + 1) \
+        if total > page * current_app.config['POSTS_PER_PAGE'] else None
+    prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template('main/search_results.html', title= ('Search'), posts=posts,
+                           next_url=next_url, prev_url=prev_url)
+"""
 @main.route('/search_results/<query>')
 def search_results(query):
     results1 = Post.query.whoosh_search(query)
@@ -104,7 +135,7 @@ def search_results(query):
                            query=query,
                            results=results1,
                            results2 = results2)
-
+"""
 @main.route('/about')
 def about():
 	return render_template('main/about.html')
