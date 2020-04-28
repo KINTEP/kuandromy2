@@ -196,4 +196,6 @@ def load_post():
     return render_template('main/load_post.html')
 
 
+
+
         

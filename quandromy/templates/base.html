@@ -39,7 +39,8 @@
             Messages
             {% set new_messages = current_user.new_messages() %}
             {% if new_messages %}
-            <span class="">{{ new_messages }}</span>
+            <span class="badge" id="message_count" style="visibility: {% if new_messages %}visible
+              {% else %}hidden {% endif %};">{{ new_messages }}</span>
             {% endif %}
         </a>
         </li>
@@ -69,7 +70,7 @@
 </div>
 </nav>
 {% endif %}
-  <body class = "container-fluid" style="background: red;">
+  <body class = "container" style="background: black;">
     {% with messages = get_flashed_messages(with_categories = true)%}
       {% if messages %}
         {% for category, message in messages %}
@@ -181,23 +182,13 @@ $(document).ready(function(){
             }
           })
         }
-        /*
-        //Make a ajax request by sending the details to the comment route
-
-        request = new XMLHttpRequest();
-        //formdata = document.querySelector('.inputValue').value;
-        request.open("POST", "/comment");
-
-      const data = new FormData();
-      data.append('formdata', this.firstElementChild.value);
-      data.append('postID', this.name);
-
-      //Send request
-      request.send(data);
-      return false;
-      }
-    }
-    */
+  </script>
+  
+  <script>
+  function set_message_count(n) {
+      $('#message_count').text(n);
+      $('#message_count').css('visibility', n ? 'visible' : 'hidden');
+        }
   </script>
   </body>
 </html>

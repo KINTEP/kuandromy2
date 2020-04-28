@@ -20,7 +20,7 @@ moment = Moment()
 
 db = SQLAlchemy()
 
-migrate = Migrate(db)
+migrate = Migrate()
 
 def create_app(config_class = Config):
 	app = Flask(__name__)
@@ -33,7 +33,7 @@ def create_app(config_class = Config):
 		bcrypt.init_app(app)
 		login_manager.init_app(app)
 		mail.init_app(app)
-		migrate.init_app(app)
+		migrate.init_app(app, db)
 		moment.init_app(app)
 	
 	#from quandromy.database import User, Post, Comment, Message, Follow

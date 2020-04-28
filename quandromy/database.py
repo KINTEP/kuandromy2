@@ -106,6 +106,7 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
     search = db.relationship('Search', backref='searcher', lazy='dynamic')
     Report = db.relationship('Report', backref='author', lazy='dynamic')
     Post = db.relationship('Post', backref = 'author', lazy = 'dynamic')
+    notifications = db.relationship('Notification', backref='user', lazy='dynamic')
     followed = db.relationship('Follow',
                                foreign_keys=[Follow.follower_id],               #SQLAlchemy cannot use the association table transparently because that will not give
                                backref=db.backref('follower', lazy='joined'),   #the application access to the custom fields in it. Instead, the many-to-many relationship
@@ -248,6 +249,11 @@ class User(db.Model, UserMixin): #The users mixing class helps in user managemen
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
 
+    def add_notification(self, name, data):
+        self.notifications.filter_by(name=name).delete()
+        n = Notification(name = name, payload_json = json.dumps(data), user = self)
+        db.session.add(n)
+        return n
 
     @property
     def followed_posts(self):
@@ -402,6 +408,16 @@ class Report(db.Model):
     def __repr__(self):
         return f'''{self.timestamp, self.body}
                  '''
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(db.Text)
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
 
 
 #db.create_all()

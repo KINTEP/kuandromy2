@@ -113,7 +113,7 @@ function Ten (elems) {
 
   	<div class="col-3">
   			<h3 class="text-white text-center bg-primary" style="width: 200px; margin-right:10%; margin-left: 50%;">People You May Follow</h3>
-  			<div class="" style="overflow: scroll; background-color: red; height: 300px; width: 200px; margin-right:10%; margin-left: 50%;">
+  			<div class="" style="overflow: scroll; height: 300px; width: 200px; margin-right:10%; margin-left: 50%;">
 
         	{% for user in Users if user != current_user and not current_user.is_following(user) %}
         	<div id = 'list-example' class="">

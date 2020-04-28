@@ -4,7 +4,7 @@ from quandromy.users.forms import (RegistrationForm, LoginForm, UpdateAccountFor
                 RequestResetForm, ResetPasswordForm, MessageForm)
 from quandromy.main.forms import SearchForm
 from quandromy import bcrypt, db,login_manager
-from quandromy.database import User, Follow, Post, Permission, Message, Report
+from quandromy.database import User, Follow, Post, Permission, Message, Report, Notification
 from quandromy.users.utils import save_picture, save_picture2, send_password_reset_email, send_reset_email
 from ..decorators import admin_required, permission_required
 from datetime import datetime
@@ -337,6 +337,18 @@ def sendpost():
     user = User.query.filter_by(username=username).first_or_404()
     response = make_response({'template': 'user/user_popup.html', 'user': user})
     return response
+
+
+@users.route('/notifications')
+@login_required
+def notifications():
+    since = request.args.get('since', 0.0, type=float)
+    notifications = current_user.notifications.filter(Notification.timestamp > since).order_by(Notification.timestamp.asc())
+    return jsonify([{
+        'name': n.name,
+        'data': n.get_data(),
+        'timestamp': n.timestamp
+    } for n in notifications])
 
 
 
