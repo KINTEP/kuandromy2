@@ -65,8 +65,35 @@
 					    data-show-faces="true">
 					  </div>
 
-            {% include 'main/_comments.html' %} 
+      <form action = "{{url_for('main.comment')}}" method="POST">
+        <input type="hidden" name="post_id" value="{{post.id}}">
+        <input type="text" name="comment_text">
+        <input class="float btn btn-sm btn-success" type="submit" name="" value="Comment">
+    </form>
+      <div>
+        {% for comment in post.comments %}
+        <ul>
+          {% if comment.author == current_user %}
+          <span class="user_popup">
+            <a href="{{url_for('users.account', username = comment.author.username)}}">
+            {{comment.author.fullname}}
+          </a>
+          :{{comment.body}}
+          </span>
+          {% else %}
 
+          <span class="user_popup">
+            <a href="{{url_for('users.dashboard', username = comment.author.username)}}">
+            {{comment.author.fullname}}
+          </a>
+          :{{comment.body}}
+          </span>
+          
+          {% endif %}
+          </ul>
+          
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>

@@ -84,8 +84,8 @@ def data():
 
 @main.route('/comment', methods = ['GET', 'POST'])
 def comment():
-    body = request.form.get("formdata").strip()
-    postid =int(request.form.get("postID"))
+    body = request.form.get("comment_text")
+    postid = request.form.get("post_id")
 
     ##comments = Comment.query.all()
 
@@ -93,13 +93,16 @@ def comment():
         post = Post.query.get_or_404(postid)
         print(current_user)
         print(post)
-        comment = Comment(body = body, author = current_user._get_current_object(), post = post)
+        comment = Comment(body = body, author = current_user, post = post)
         db.session.add(comment)
         db.session.commit()
-        flash("Your comment has been noticed")
+        flash("Your comment has been noticed", "success")
+        return redirect(url_for("main.index"))
     else:
-        return "No data was received"
-    return render_template("main/_comments.html")
+        flash("No data was received")
+        return redirect(url_for("main.index"))
+
+    
 
 @main.route('/allcomments/<int:postid>')
 def allcomments(postid):
